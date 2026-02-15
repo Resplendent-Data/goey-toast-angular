@@ -15,9 +15,16 @@ An Angular-native toast system inspired by `goey-toast` (React).
 
 ## Quick start
 
-1. Copy `src/lib/*` into your Angular project (or package as a library).
-2. Add `<goey-toaster />` once near your app root (e.g., `app.component.html`).
-3. Inject `GoeyToastService` where needed.
+### Install (once published)
+
+```bash
+npm install goey-toast-angular
+```
+
+### Use in app
+
+1. Add `<goey-toaster />` once near your app root (e.g., `app.component.html`).
+2. Inject `GoeyToastService` where needed.
 
 ```ts
 import { Component, inject } from '@angular/core';
