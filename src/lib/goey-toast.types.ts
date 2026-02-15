@@ -26,6 +26,12 @@ export interface GoeyToastOptions {
   bounce?: number; // 0.05 - 0.8
 }
 
+export interface GoeyToasterDefaults extends Omit<GoeyToastOptions, 'id'> {
+  duration: number;
+  spring: boolean;
+  bounce: number;
+}
+
 export interface GoeyToastItem extends Required<Pick<GoeyToastOptions, 'spring' | 'bounce'>> {
   id: string;
   type: GoeyToastType;

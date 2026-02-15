@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GoeyPromiseData, GoeyToastItem, GoeyToastOptions, GoeyToastType } from './goey-toast.types';
+import { GoeyPromiseData, GoeyToastItem, GoeyToastOptions, GoeyToastType, GoeyToasterDefaults } from './goey-toast.types';
 
 @Injectable({ providedIn: 'root' })
 export class GoeyToastService {
@@ -8,6 +8,17 @@ export class GoeyToastService {
   readonly toasts$ = this._toasts.asObservable();
 
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
+  private readonly closingMs = 220;
+
+  private defaults: GoeyToasterDefaults = {
+    duration: 4000,
+    spring: true,
+    bounce: 0.4,
+  };
+
+  setDefaults(defaults: Partial<GoeyToasterDefaults>) {
+    this.defaults = { ...this.defaults, ...defaults };
+  }
 
   show(title: string, options: GoeyToastOptions = {}, type: GoeyToastType = 'default'): string {
     const id = options.id ?? this.makeId();
@@ -16,13 +27,13 @@ export class GoeyToastService {
       title,
       type,
       description: options.description,
-      duration: options.duration ?? 4000,
+      duration: options.duration ?? this.defaults.duration,
       action: options.action,
       fillColor: options.fillColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
-      spring: options.spring ?? true,
-      bounce: options.bounce ?? 0.4,
+      spring: options.spring ?? this.defaults.spring,
+      bounce: options.bounce ?? this.defaults.bounce,
       state: 'open',
     };
 
@@ -58,6 +69,10 @@ export class GoeyToastService {
     return this.show(title, { ...options, duration: 0 }, 'loading');
   }
 
+  update(id: string, patch: Partial<Omit<GoeyToastItem, 'id'>>) {
+    this._toasts.next(this._toasts.value.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  }
+
   dismiss(id?: string) {
     if (!id) {
       this._toasts.value.forEach((t) => this.clearTimer(t.id));
@@ -74,7 +89,7 @@ export class GoeyToastService {
 
     setTimeout(() => {
       this._toasts.next(this._toasts.value.filter((t) => t.id !== id));
-    }, 220);
+    }, this.closingMs);
   }
 
   async promise<T>(promise: Promise<T>, data: GoeyPromiseData<T>, options?: GoeyToastOptions): Promise<T> {

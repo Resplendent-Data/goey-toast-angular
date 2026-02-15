@@ -1,34 +1,26 @@
-# goey-toast-angular (starter)
+# goey-toast-angular
 
-An Angular-native toast system inspired by `goey-toast` (React).
+Angular-native gooey toast notifications inspired by `goey-toast`.
 
-## Features in this starter
+## Status
 
-- Toast types: `default`, `success`, `error`, `warning`, `info`
-- Global `GoeyToastService`
-- `GoeyToasterComponent` host with six positions
-- Auto-dismiss timers
-- Pre-dismiss collapse animation
-- Action button support
-- Promise helper (`promise`) for loading -> success/error
-- Simple blob-ish styling and spring-like transitions
+- ✅ Buildable Angular library (`ng-packagr`)
+- ✅ Unit tests (Vitest + coverage)
+- ✅ CI workflow (test + build)
+- ✅ npm-ready package metadata
+- ✅ Example app snippets in `examples/`
 
-## Quick start
-
-### Install (once published)
+## Install
 
 ```bash
 npm install goey-toast-angular
 ```
 
-### Use in app
-
-1. Add `<goey-toaster />` once near your app root (e.g., `app.component.html`).
-2. Inject `GoeyToastService` where needed.
+## Quick start
 
 ```ts
 import { Component, inject } from '@angular/core';
-import { GoeyToasterComponent, GoeyToastService } from './goey-toast';
+import { GoeyToasterComponent, GoeyToastService } from 'goey-toast-angular';
 
 @Component({
   selector: 'app-root',
@@ -48,7 +40,37 @@ export class AppComponent {
 }
 ```
 
-## Promise example
+## API
+
+### `GoeyToastService`
+
+- `show(title, options?)`
+- `success(title, options?)`
+- `error(title, options?)`
+- `warning(title, options?)`
+- `info(title, options?)`
+- `loading(title, options?)`
+- `dismiss(id?)`
+- `update(id, patch)`
+- `setDefaults({ duration, spring, bounce, ... })`
+- `promise(promise, { loading, success, error }, options?)`
+
+### `GoeyToasterComponent`
+
+```html
+<goey-toaster position="bottom-right"></goey-toaster>
+```
+
+`position` supports:
+
+- `top-left`
+- `top-center`
+- `top-right`
+- `bottom-left`
+- `bottom-center`
+- `bottom-right`
+
+## Promise toast example
 
 ```ts
 this.toast.promise(apiCall(), {
@@ -58,7 +80,41 @@ this.toast.promise(apiCall(), {
 });
 ```
 
-## Notes
+## Development
 
-This is a practical Angular port starter, not a pixel-perfect clone of the React package internals.
-If you want, I can continue by packaging this as a publishable Angular library (`ng-packagr`) and add tests + Storybook.
+```bash
+npm install
+npm test
+npm run build
+```
+
+## Live examples
+
+- Example source: `examples/standalone-app/`
+- Quick playground base (StackBlitz): <https://stackblitz.com/edit/angular-standalone-template>
+
+## Publishing to npm
+
+1. Login:
+
+```bash
+npm login
+```
+
+2. Optional dry run:
+
+```bash
+npm pack --dry-run
+```
+
+3. Publish:
+
+```bash
+npm publish --access public
+```
+
+If the unscoped name is taken later, use a scoped package name like `@malachibazar/goey-toast-angular`.
+
+## License
+
+MIT

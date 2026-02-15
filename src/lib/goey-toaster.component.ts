@@ -33,4 +33,8 @@ export class GoeyToasterComponent {
   typeClass(type: GoeyToastItem['type']) {
     return `goey-${type}`;
   }
+
+  trackById(_: number, toast: GoeyToastItem) {
+    return toast.id;
+  }
 }

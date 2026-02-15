@@ -6,7 +6,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/narwhaleric/goey-toast-angular.git"
+    "url": "https://github.com/malachibazar/goey-toast-angular.git"
   },
   "keywords": [
     "angular",
@@ -28,11 +28,15 @@
     "ng-packagr": "^19.2.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.3",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8",
+    "@vitest/coverage-v8": "^2.1.8"
   },
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
-    "prepublishOnly": "npm run build"
+    "test": "vitest run --coverage",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "publishConfig": {
     "access": "public"

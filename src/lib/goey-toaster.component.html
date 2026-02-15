@@ -1,22 +1,22 @@
-<div class="goey-toaster" [class]="'goey-toaster ' + position">
+<div class="goey-toaster" [ngClass]="position" role="region" aria-live="polite" aria-label="Notifications">
   <div
     class="goey-toast"
-    *ngFor="let toast of toasts$ | async"
+    *ngFor="let toast of toasts$ | async; trackBy: trackById"
     [class.closing]="toast.state === 'closing'"
-    [class]="'goey-toast ' + typeClass(toast.type)"
+    [ngClass]="typeClass(toast.type)"
     [style.--goey-fill]="toast.fillColor || null"
     [style.--goey-border]="toast.borderColor || null"
     [style.--goey-border-width.px]="toast.borderWidth || 1.5"
   >
     <div class="header">
       <div class="title">{{ toast.title }}</div>
-      <button class="close" (click)="dismiss(toast.id)">×</button>
+      <button type="button" class="close" (click)="dismiss(toast.id)" aria-label="Dismiss notification">×</button>
     </div>
 
     <div class="description" *ngIf="toast.description">{{ toast.description }}</div>
 
     <div class="actions" *ngIf="toast.action">
-      <button class="action" (click)="runAction(toast)">{{ toast.action.label }}</button>
+      <button type="button" class="action" (click)="runAction(toast)">{{ toast.action.label }}</button>
     </div>
   </div>
 </div>
