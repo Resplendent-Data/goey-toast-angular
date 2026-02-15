@@ -1,0 +1,82 @@
+:host {
+  --bg: #111827;
+  --fg: #f9fafb;
+  --muted: #d1d5db;
+  --border: #374151;
+}
+
+.goey-toaster {
+  position: fixed;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: min(92vw, 380px);
+}
+
+.top-left { top: 24px; left: 24px; }
+.top-center { top: 24px; left: 50%; transform: translateX(-50%); }
+.top-right { top: 24px; right: 24px; }
+.bottom-left { bottom: 24px; left: 24px; }
+.bottom-center { bottom: 24px; left: 50%; transform: translateX(-50%); }
+.bottom-right { bottom: 24px; right: 24px; }
+
+.goey-toast {
+  color: var(--fg);
+  background: var(--goey-fill, var(--bg));
+  border: var(--goey-border-width, 1.5px) solid var(--goey-border, var(--border));
+  border-radius: 20px;
+  padding: 12px 12px 10px;
+  box-shadow: 0 10px 28px rgba(0,0,0,.22);
+  animation: popIn 220ms cubic-bezier(.2,.9,.2,1);
+  transform-origin: center;
+  backdrop-filter: blur(6px);
+}
+
+.goey-toast.closing {
+  animation: collapseOut 220ms ease-in forwards;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.title { font-weight: 700; line-height: 1.25; }
+.description { margin-top: 6px; color: var(--muted); font-size: .92rem; }
+.actions { margin-top: 10px; }
+
+.close,
+.action {
+  border: 1px solid rgba(255,255,255,.18);
+  background: rgba(255,255,255,.08);
+  color: inherit;
+  border-radius: 999px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.close {
+  width: 28px;
+  height: 28px;
+  line-height: 1;
+  padding: 0;
+}
+
+.goey-success { --goey-fill: #083f26; --goey-border: #169c5e; }
+.goey-error { --goey-fill: #4a1010; --goey-border: #dc2626; }
+.goey-warning { --goey-fill: #4a3400; --goey-border: #f59e0b; }
+.goey-info { --goey-fill: #0b2f57; --goey-border: #3b82f6; }
+.goey-loading { --goey-fill: #1f2937; --goey-border: #6b7280; }
+
+@keyframes popIn {
+  from { transform: scale(.94) translateY(8px); opacity: 0; border-radius: 999px; }
+  to   { transform: scale(1) translateY(0); opacity: 1; border-radius: 20px; }
+}
+
+@keyframes collapseOut {
+  from { transform: scale(1); opacity: 1; max-height: 220px; margin-top: 0; }
+  to   { transform: scale(.92); opacity: 0; max-height: 0; margin-top: -6px; padding-top: 0; padding-bottom: 0; }
+}

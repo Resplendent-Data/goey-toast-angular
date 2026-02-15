@@ -1,0 +1,22 @@
+<div class="goey-toaster" [class]="'goey-toaster ' + position">
+  <div
+    class="goey-toast"
+    *ngFor="let toast of toasts$ | async"
+    [class.closing]="toast.state === 'closing'"
+    [class]="'goey-toast ' + typeClass(toast.type)"
+    [style.--goey-fill]="toast.fillColor || null"
+    [style.--goey-border]="toast.borderColor || null"
+    [style.--goey-border-width.px]="toast.borderWidth || 1.5"
+  >
+    <div class="header">
+      <div class="title">{{ toast.title }}</div>
+      <button class="close" (click)="dismiss(toast.id)">×</button>
+    </div>
+
+    <div class="description" *ngIf="toast.description">{{ toast.description }}</div>
+
+    <div class="actions" *ngIf="toast.action">
+      <button class="action" (click)="runAction(toast)">{{ toast.action.label }}</button>
+    </div>
+  </div>
+</div>
