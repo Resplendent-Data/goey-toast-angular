@@ -116,8 +116,8 @@ npm run build
 
 This repo uses:
 
-- `release-please.yml` to open/update release PRs and publish to npm when a release is cut
-- `publish.yml` as a manual fallback publish workflow (`workflow_dispatch`)
+- `release-please.yml` to open/update release PRs and create GitHub Releases
+- `publish.yml` to publish to npm on pushes to `master` (and via `workflow_dispatch`)
 
 Typical flow:
 
@@ -125,7 +125,7 @@ Typical flow:
 2. Release Please updates/opens the release PR
 3. Squash-merge the release PR
 4. GitHub Release is created
-5. The same workflow publishes to npm via Trusted Publishing (OIDC)
+5. `publish.yml` publishes to npm via Trusted Publishing (OIDC)
 
 ## Live examples
 
