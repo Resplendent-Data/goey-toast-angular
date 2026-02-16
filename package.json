@@ -1,6 +1,6 @@
 {
   "name": "goey-toast-angular",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Angular-native gooey toast notifications inspired by goey-toast",
   "author": "Eric (pixel narwhal)",
   "license": "MIT",
