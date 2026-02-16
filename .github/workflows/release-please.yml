@@ -40,6 +40,11 @@ jobs:
           cache: npm
           token: ''
 
+      - name: Upgrade npm for Trusted Publishing
+        run: |
+          npm install -g npm@11
+          npm --version
+
       - name: Install
         run: npm ci
 
@@ -54,7 +59,14 @@ jobs:
           test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
           test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
 
+      - name: Publish with npm token fallback
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: npm publish --access public
+
       - name: Publish (Trusted Publishing / OIDC)
+        if: ${{ secrets.NPM_TOKEN == '' }}
         env:
           NODE_AUTH_TOKEN: ''
         run: npm publish --provenance --access public
