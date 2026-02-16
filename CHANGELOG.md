@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.1.1...v1.1.2) (2026-02-16)
+
+
+### Bug Fixes
+
+* streamline release-please publishing ([#7](https://github.com/Resplendent-Data/goey-toast-angular/issues/7)) ([d0e6595](https://github.com/Resplendent-Data/goey-toast-angular/commit/d0e6595fa1ff06303fcd8e90cd78cea1dd9eff47))
+
 ## [1.1.1](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.1.0...v1.1.1) (2026-02-16)
 
 
