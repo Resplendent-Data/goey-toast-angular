@@ -9,6 +9,7 @@ import {
   OnDestroy,
   SimpleChanges,
   ViewChild,
+  afterNextRender,
   inject,
   signal,
 } from '@angular/core';
@@ -65,8 +66,9 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   readonly bodyVisible = signal(false);
   readonly actionSuccessLabel = signal<string | null>(null);
 
-  private readonly prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  private prefersReducedMotion = false;
+  private reducedMotionQuery: MediaQueryList | null = null;
+  private reducedMotionChangeHandler: ((event: MediaQueryListEvent) => void) | null = null;
 
   private collapsedDims: GoeyToastDimensions = {
     pillWidth: 0,
@@ -101,6 +103,30 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private rafId: number | null = null;
   private shakeRafId: number | null = null;
 
+  constructor() {
+    afterNextRender(() => {
+      if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+        return;
+      }
+
+      const query = window.matchMedia('(prefers-reduced-motion: reduce)');
+      this.prefersReducedMotion = query.matches;
+
+      const onChange = (event: MediaQueryListEvent) => {
+        this.prefersReducedMotion = event.matches;
+      };
+
+      if (typeof query.addEventListener === 'function') {
+        query.addEventListener('change', onChange);
+      } else {
+        query.addListener(onChange);
+      }
+
+      this.reducedMotionQuery = query;
+      this.reducedMotionChangeHandler = onChange;
+    });
+  }
+
   ngAfterViewInit(): void {
     this.viewReady = true;
     this.syncFromToast();
@@ -128,6 +154,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   ngOnDestroy(): void {
+    this.teardownReducedMotionTracking();
     this.stopAllTimers();
     this.stopMorphAnimation();
     this.stopShakeAnimation();
@@ -721,6 +748,21 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
       clearTimeout(this.actionSuccessTimer);
       this.actionSuccessTimer = null;
     }
+  }
+
+  private teardownReducedMotionTracking(): void {
+    if (!this.reducedMotionQuery || !this.reducedMotionChangeHandler) {
+      return;
+    }
+
+    if (typeof this.reducedMotionQuery.removeEventListener === 'function') {
+      this.reducedMotionQuery.removeEventListener('change', this.reducedMotionChangeHandler);
+    } else {
+      this.reducedMotionQuery.removeListener(this.reducedMotionChangeHandler);
+    }
+
+    this.reducedMotionQuery = null;
+    this.reducedMotionChangeHandler = null;
   }
 
   private canExpandBody(): boolean {

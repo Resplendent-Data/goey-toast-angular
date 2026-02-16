@@ -44,17 +44,18 @@ export class AppComponent {
 
 `ng-package.json` ships these style assets:
 
-- `src/lib/goey-toaster.component.css`
-- `src/lib/goey-toast-item.component.css`
+- `goey-toaster.component.css`
+- `goey-toast-item.component.css`
 
 Angular should normally apply component styles automatically. If your consumer build strips or externalizes library styles, include both assets explicitly:
 
 ```css
-@import 'goey-toast-angular/src/lib/goey-toaster.component.css';
-@import 'goey-toast-angular/src/lib/goey-toast-item.component.css';
+@import 'goey-toast-angular/goey-toaster.component.css';
+@import 'goey-toast-angular/goey-toast-item.component.css';
 ```
 
-Or add the same two paths to the consumer app's `angular.json` `styles` array.
+Or add the same package-root paths (`goey-toast-angular/goey-toaster.component.css` and
+`goey-toast-angular/goey-toast-item.component.css`) to the consumer app's `angular.json` `styles` array.
 
 ## API
 

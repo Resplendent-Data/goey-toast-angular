@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import {
   GoeyPromiseData,
+  GoeyToastAction,
   GoeyToastItem,
   GoeyToastOptions,
   GoeyToastRadius,
@@ -9,6 +10,23 @@ import {
   GoeyToastTypeColors,
   GoeyToasterDefaults,
 } from './goey-toast.types';
+
+type PromiseUpdateShared = Pick<
+  GoeyPromiseData<unknown>,
+  'classNames' | 'fillColor' | 'borderColor' | 'borderWidth' | 'timing' | 'spring' | 'bounce'
+>;
+
+interface PromiseUpdateArgs<T> {
+  type: 'success' | 'error';
+  titleSource: string | ((input: T) => string);
+  descriptionSource?: string | ((input: T) => string);
+  actionSource?: GoeyToastAction;
+  input: T;
+  options?: GoeyToastOptions;
+  shared: PromiseUpdateShared;
+  promiseTypeColors?: GoeyToastTypeColors;
+  promiseRadius?: GoeyToastRadius;
+}
 
 @Injectable({ providedIn: 'root' })
 export class GoeyToastService {
@@ -120,64 +138,97 @@ export class GoeyToastService {
   async promise<T>(promise: Promise<T>, data: GoeyPromiseData<T>, options?: GoeyToastOptions): Promise<T> {
     const promiseTypeColors = this.mergeTypeColors(options?.typeColors, data.typeColors);
     const promiseRadius = this.mergeRadius(options?.radius, data.radius);
+    const shared: PromiseUpdateShared = {
+      classNames: data.classNames,
+      fillColor: data.fillColor,
+      borderColor: data.borderColor,
+      borderWidth: data.borderWidth,
+      timing: data.timing,
+      spring: data.spring,
+      bounce: data.bounce,
+    };
 
     const id = this.loading(data.loading, {
       ...options,
       description: this.resolveMaybeMessage(data.description?.loading),
-      classNames: data.classNames ?? options?.classNames,
-      fillColor: data.fillColor ?? options?.fillColor,
-      borderColor: data.borderColor ?? options?.borderColor,
-      borderWidth: data.borderWidth ?? options?.borderWidth,
+      classNames: shared.classNames ?? options?.classNames,
+      fillColor: shared.fillColor ?? options?.fillColor,
+      borderColor: shared.borderColor ?? options?.borderColor,
+      borderWidth: shared.borderWidth ?? options?.borderWidth,
       typeColors: promiseTypeColors,
       radius: promiseRadius,
-      timing: data.timing ?? options?.timing,
-      spring: data.spring ?? options?.spring,
-      bounce: data.bounce ?? options?.bounce,
+      timing: shared.timing ?? options?.timing,
+      spring: shared.spring ?? options?.spring,
+      bounce: shared.bounce ?? options?.bounce,
     });
 
     try {
       const result = await promise;
 
-      this.update(id, {
-        title: this.resolveMessage(data.success, result),
-        type: 'success',
-        description: this.resolveMaybeMessage(data.description?.success, result),
-        action: data.action?.success,
-        duration: options?.duration ?? this.defaults.duration,
-        classNames: data.classNames ?? options?.classNames,
-        fillColor: data.fillColor ?? options?.fillColor,
-        borderColor: data.borderColor ?? options?.borderColor,
-        borderWidth: data.borderWidth ?? options?.borderWidth,
-        typeColors: this.resolveTypeColors(promiseTypeColors),
-        radius: this.resolveRadius(promiseRadius),
-        timing: data.timing ?? options?.timing,
-        spring: data.spring ?? options?.spring ?? this.defaults.spring,
-        bounce: data.bounce ?? options?.bounce ?? this.defaults.bounce,
-        state: 'open',
-      });
+      this.update(
+        id,
+        this.buildPromiseUpdate({
+          type: 'success',
+          titleSource: data.success,
+          descriptionSource: data.description?.success,
+          actionSource: data.action?.success,
+          input: result,
+          options,
+          shared,
+          promiseTypeColors,
+          promiseRadius,
+        })
+      );
 
       return result;
     } catch (err) {
-      this.update(id, {
-        title: this.resolveMessage(data.error, err),
-        type: 'error',
-        description: this.resolveMaybeMessage(data.description?.error, err),
-        action: data.action?.error,
-        duration: options?.duration ?? this.defaults.duration,
-        classNames: data.classNames ?? options?.classNames,
-        fillColor: data.fillColor ?? options?.fillColor,
-        borderColor: data.borderColor ?? options?.borderColor,
-        borderWidth: data.borderWidth ?? options?.borderWidth,
-        typeColors: this.resolveTypeColors(promiseTypeColors),
-        radius: this.resolveRadius(promiseRadius),
-        timing: data.timing ?? options?.timing,
-        spring: data.spring ?? options?.spring ?? this.defaults.spring,
-        bounce: data.bounce ?? options?.bounce ?? this.defaults.bounce,
-        state: 'open',
-      });
+      this.update(
+        id,
+        this.buildPromiseUpdate({
+          type: 'error',
+          titleSource: data.error,
+          descriptionSource: data.description?.error,
+          actionSource: data.action?.error,
+          input: err,
+          options,
+          shared,
+          promiseTypeColors,
+          promiseRadius,
+        })
+      );
 
       throw err;
     }
+  }
+
+  private buildPromiseUpdate<T>({
+    type,
+    titleSource,
+    descriptionSource,
+    actionSource,
+    input,
+    options,
+    shared,
+    promiseTypeColors,
+    promiseRadius,
+  }: PromiseUpdateArgs<T>): Partial<Omit<GoeyToastItem, 'id'>> {
+    return {
+      title: this.resolveMessage(titleSource, input),
+      type,
+      description: this.resolveMaybeMessage(descriptionSource, input),
+      action: actionSource,
+      duration: options?.duration ?? this.defaults.duration,
+      classNames: shared.classNames ?? options?.classNames,
+      fillColor: shared.fillColor ?? options?.fillColor,
+      borderColor: shared.borderColor ?? options?.borderColor,
+      borderWidth: shared.borderWidth ?? options?.borderWidth,
+      typeColors: this.resolveTypeColors(promiseTypeColors),
+      radius: this.resolveRadius(promiseRadius),
+      timing: shared.timing ?? options?.timing,
+      spring: shared.spring ?? options?.spring ?? this.defaults.spring,
+      bounce: shared.bounce ?? options?.bounce ?? this.defaults.bounce,
+      state: 'open',
+    };
   }
 
   private armDismissTimer(toast: GoeyToastItem) {

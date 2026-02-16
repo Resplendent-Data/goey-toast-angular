@@ -95,7 +95,7 @@
 }
 
 @keyframes goey-stack-enter-top {
-  from {
+  0% {
     opacity: 0;
     transform: translateY(-18px) scaleX(0.92) scaleY(1.08);
   }
@@ -105,14 +105,14 @@
     transform: translateY(2px) scaleX(1.035) scaleY(0.965);
   }
 
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
 }
 
 @keyframes goey-stack-enter-bottom {
-  from {
+  0% {
     opacity: 0;
     transform: translateY(18px) scaleX(0.92) scaleY(1.08);
   }
@@ -122,7 +122,7 @@
     transform: translateY(-2px) scaleX(1.035) scaleY(0.965);
   }
 
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
