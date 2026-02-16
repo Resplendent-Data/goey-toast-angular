@@ -217,8 +217,8 @@
               <div class="color-row">
                 <span class="color-row-label">Fill Color</span>
                 <div class="color-picker-group">
-                  <input type="color" class="color-input" [value]="builderFillColor()" (input)="builderFillColor.set($any($event.target).value)" />
-                  <input class="builder-input color-hex" [value]="builderFillColor()" (input)="builderFillColor.set($any($event.target).value)" />
+                  <input type="color" class="color-input" aria-label="Fill color picker" [value]="builderFillColor()" (input)="builderFillColor.set($any($event.target).value)" />
+                  <input class="builder-input color-hex" aria-label="Fill color hex input" [value]="builderFillColor()" (input)="builderFillColor.set($any($event.target).value)" />
                 </div>
               </div>
 
@@ -265,8 +265,8 @@
                     <div class="color-row">
                       <span class="color-row-label">Border Color</span>
                       <div class="color-picker-group">
-                        <input type="color" class="color-input" [value]="builderBorderColor()" (input)="builderBorderColor.set($any($event.target).value)" />
-                        <input class="builder-input color-hex" [value]="builderBorderColor()" (input)="builderBorderColor.set($any($event.target).value)" />
+                        <input type="color" class="color-input" aria-label="Border color picker" [value]="builderBorderColor()" (input)="builderBorderColor.set($any($event.target).value)" />
+                        <input class="builder-input color-hex" aria-label="Border color hex input" [value]="builderBorderColor()" (input)="builderBorderColor.set($any($event.target).value)" />
                       </div>
                     </div>
 
