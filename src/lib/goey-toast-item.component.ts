@@ -14,6 +14,8 @@ import {
 } from '@angular/core';
 import { GoeyToastService } from './goey-toast.service';
 import { GoeyToastAction, GoeyToastItem, GoeyToastPosition, GoeyToastType } from './goey-toast.types';
+import { TOAST_PILL_HEIGHT } from './goey-toast.constants';
+import { clamp } from './goey-toast.utils';
 
 interface GoeyToastDimensions {
   pillWidth: number;
@@ -21,7 +23,6 @@ interface GoeyToastDimensions {
   totalHeight: number;
 }
 
-const PILL_HEIGHT = 34;
 const EXPAND_DELAY_MS = 330;
 const COLLAPSE_DURATION_MS = 900;
 const EXPAND_SPRING_DURATION_MS = 900;
@@ -60,13 +61,13 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private collapsedDims: GoeyToastDimensions = {
     pillWidth: 0,
     bodyWidth: 0,
-    totalHeight: PILL_HEIGHT,
+    totalHeight: TOAST_PILL_HEIGHT,
   };
 
   private expandedDims: GoeyToastDimensions = {
     pillWidth: 0,
     bodyWidth: 0,
-    totalHeight: PILL_HEIGHT,
+    totalHeight: TOAST_PILL_HEIGHT,
   };
 
   private morphProgress = 0;
@@ -226,13 +227,16 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   runAction(action: GoeyToastAction): void {
+    let succeeded = true;
+
     try {
       action.onClick();
     } catch (error) {
+      succeeded = false;
       console.error('[goey-toast-angular] Toast action handler threw an error:', error);
     }
 
-    if (!action.successLabel) {
+    if (!succeeded || !action.successLabel) {
       return;
     }
 
@@ -414,7 +418,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     this.collapsedDims = {
       pillWidth,
       bodyWidth: pillWidth,
-      totalHeight: PILL_HEIGHT,
+      totalHeight: TOAST_PILL_HEIGHT,
     };
 
     if (this.expandedDims.bodyWidth <= 0) {
@@ -431,7 +435,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const horizontalPadding = toNumber(computed.paddingLeft) + toNumber(computed.paddingRight);
     const pillWidth = this.headerRef.nativeElement.offsetWidth + horizontalPadding;
     const bodyWidth = Math.max(contentEl.offsetWidth, pillWidth);
-    const totalHeight = Math.max(contentEl.offsetHeight, PILL_HEIGHT);
+    const totalHeight = Math.max(contentEl.offsetHeight, TOAST_PILL_HEIGHT);
 
     this.expandedDims = {
       pillWidth,
@@ -507,7 +511,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const expandedHeight = expanded.totalHeight;
     const centerWidth = Math.max(expandedBodyWidth, collapsedPillWidth);
     const maxWidth = this.isCenter() ? centerWidth : Math.max(expandedBodyWidth, collapsedPillWidth);
-    const maxHeight = Math.max(expandedHeight, PILL_HEIGHT);
+    const maxHeight = Math.max(expandedHeight, TOAST_PILL_HEIGHT);
 
     const svgEl = this.svgRef.nativeElement;
     svgEl.setAttribute('width', `${maxWidth}`);
@@ -535,7 +539,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
     if (t > 0) {
       const currentWidth = pillWidth + (expandedBodyWidth - pillWidth) * t;
-      const currentHeight = PILL_HEIGHT + (expandedHeight - PILL_HEIGHT) * t;
+      const currentHeight = TOAST_PILL_HEIGHT + (expandedHeight - TOAST_PILL_HEIGHT) * t;
 
       wrapperEl.style.width = `${this.isCenter() ? centerWidth : currentWidth}px`;
       contentEl.style.width = `${this.isCenter() ? centerWidth : expandedBodyWidth}px`;
@@ -556,7 +560,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
 
     wrapperEl.style.width = `${this.isCenter() ? centerWidth : pillWidth}px`;
-    contentEl.style.maxHeight = `${PILL_HEIGHT}px`;
+    contentEl.style.maxHeight = `${TOAST_PILL_HEIGHT}px`;
     contentEl.style.overflow = 'hidden';
 
     if (this.isCenter()) {
@@ -711,18 +715,6 @@ function joinClasses(...values: Array<string | null | undefined>): string {
   return values.filter((value): value is string => Boolean(value)).join(' ');
 }
 
-function clamp(value: number, min: number, max: number): number {
-  if (value < min) {
-    return min;
-  }
-
-  if (value > max) {
-    return max;
-  }
-
-  return value;
-}
-
 function easeInOut(progress: number): number {
   return progress < 0.5
     ? 4 * progress * progress * progress
@@ -751,17 +743,17 @@ function springEasing(progress: number, opening: boolean, bounce: number): numbe
 }
 
 export function morphPath(pillWidth: number, bodyWidth: number, totalHeight: number, progress: number): string {
-  const radius = PILL_HEIGHT / 2;
+  const radius = TOAST_PILL_HEIGHT / 2;
   const safePillWidth = Math.min(pillWidth, bodyWidth);
-  const bodyHeight = PILL_HEIGHT + (totalHeight - PILL_HEIGHT) * progress;
+  const bodyHeight = TOAST_PILL_HEIGHT + (totalHeight - TOAST_PILL_HEIGHT) * progress;
 
-  if (progress <= 0 || bodyHeight - PILL_HEIGHT < 8) {
+  if (progress <= 0 || bodyHeight - TOAST_PILL_HEIGHT < 8) {
     return [
       `M 0,${radius}`,
       `A ${radius},${radius} 0 0 1 ${radius},0`,
       `H ${safePillWidth - radius}`,
       `A ${radius},${radius} 0 0 1 ${safePillWidth},${radius}`,
-      `A ${radius},${radius} 0 0 1 ${safePillWidth - radius},${PILL_HEIGHT}`,
+      `A ${radius},${radius} 0 0 1 ${safePillWidth - radius},${TOAST_PILL_HEIGHT}`,
       `H ${radius}`,
       `A ${radius},${radius} 0 0 1 0,${radius}`,
       'Z',
@@ -769,9 +761,9 @@ export function morphPath(pillWidth: number, bodyWidth: number, totalHeight: num
   }
 
   const curve = 14 * progress;
-  const cornerRadius = Math.min(16, (bodyHeight - PILL_HEIGHT) * 0.45);
+  const cornerRadius = Math.min(16, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45);
   const bodyWidthInterpolated = safePillWidth + (bodyWidth - safePillWidth) * progress;
-  const bodyTop = PILL_HEIGHT - curve;
+  const bodyTop = TOAST_PILL_HEIGHT - curve;
   const qEndX = Math.min(safePillWidth + curve, bodyWidthInterpolated - cornerRadius);
 
   return [
@@ -792,27 +784,27 @@ export function morphPath(pillWidth: number, bodyWidth: number, totalHeight: num
 }
 
 export function morphPathCenter(pillWidth: number, bodyWidth: number, totalHeight: number, progress: number): string {
-  const radius = PILL_HEIGHT / 2;
+  const radius = TOAST_PILL_HEIGHT / 2;
   const safePillWidth = Math.min(pillWidth, bodyWidth);
   const pillOffset = (bodyWidth - safePillWidth) / 2;
 
-  if (progress <= 0 || PILL_HEIGHT + (totalHeight - PILL_HEIGHT) * progress - PILL_HEIGHT < 8) {
+  if (progress <= 0 || (totalHeight - TOAST_PILL_HEIGHT) * progress < 8) {
     return [
       `M ${pillOffset},${radius}`,
       `A ${radius},${radius} 0 0 1 ${pillOffset + radius},0`,
       `H ${pillOffset + safePillWidth - radius}`,
       `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth},${radius}`,
-      `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth - radius},${PILL_HEIGHT}`,
+      `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth - radius},${TOAST_PILL_HEIGHT}`,
       `H ${pillOffset + radius}`,
       `A ${radius},${radius} 0 0 1 ${pillOffset},${radius}`,
       'Z',
     ].join(' ');
   }
 
-  const bodyHeight = PILL_HEIGHT + (totalHeight - PILL_HEIGHT) * progress;
+  const bodyHeight = TOAST_PILL_HEIGHT + (totalHeight - TOAST_PILL_HEIGHT) * progress;
   const curve = 14 * progress;
-  const cornerRadius = Math.min(16, (bodyHeight - PILL_HEIGHT) * 0.45);
-  const bodyTop = PILL_HEIGHT - curve;
+  const cornerRadius = Math.min(16, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45);
+  const bodyTop = TOAST_PILL_HEIGHT - curve;
   const bodyCenter = bodyWidth / 2;
   const halfWidth = safePillWidth / 2 + ((bodyWidth - safePillWidth) / 2) * progress;
   const bodyLeft = bodyCenter - halfWidth;

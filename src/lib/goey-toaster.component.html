@@ -15,6 +15,7 @@
 >
   @for (toast of visibleStackToasts(); track toast.id; let i = $index; let count = $count) {
     <div
+      #stackItem
       class="goey-stackItem"
       [style.z-index]="count - i"
       [style.transform]="stackItemTransform(i)"

@@ -161,7 +161,14 @@
           <div class="builder-row">
             <div class="toggle-row">
               <span class="toggle-row-label">Description</span>
-              <button class="toggle" type="button" [attr.data-on]="builderHasDescription()" (click)="builderHasDescription.set(!builderHasDescription())">
+              <button
+                class="toggle"
+                type="button"
+                aria-label="Toggle description"
+                [attr.aria-pressed]="builderHasDescription()"
+                [attr.data-on]="builderHasDescription()"
+                (click)="builderHasDescription.set(!builderHasDescription())"
+              >
                 <span class="toggle-knob"></span>
               </button>
             </div>
@@ -178,7 +185,14 @@
           <div class="builder-row">
             <div class="toggle-row">
               <span class="toggle-row-label">Action Button</span>
-              <button class="toggle" type="button" [attr.data-on]="builderHasAction()" (click)="builderHasAction.set(!builderHasAction())">
+              <button
+                class="toggle"
+                type="button"
+                aria-label="Toggle action button"
+                [attr.aria-pressed]="builderHasAction()"
+                [attr.data-on]="builderHasAction()"
+                (click)="builderHasAction.set(!builderHasAction())"
+              >
                 <span class="toggle-knob"></span>
               </button>
             </div>
@@ -208,7 +222,14 @@
               <div class="border-section">
                 <div class="toggle-row">
                   <span class="toggle-row-label">Border</span>
-                  <button class="toggle" type="button" [attr.data-on]="builderHasBorder()" (click)="builderHasBorder.set(!builderHasBorder())">
+                  <button
+                    class="toggle"
+                    type="button"
+                    aria-label="Toggle border"
+                    [attr.aria-pressed]="builderHasBorder()"
+                    [attr.data-on]="builderHasBorder()"
+                    (click)="builderHasBorder.set(!builderHasBorder())"
+                  >
                     <span class="toggle-knob"></span>
                   </button>
                 </div>
@@ -267,7 +288,14 @@
             <div class="builder-label">Spring</div>
             <div class="toggle-row spring-row">
               <span class="toggle-row-label">{{ builderSpring() ? 'On' : 'Off' }}</span>
-              <button class="toggle" type="button" [attr.data-on]="builderSpring()" (click)="builderSpring.set(!builderSpring())">
+              <button
+                class="toggle"
+                type="button"
+                aria-label="Toggle spring animation"
+                [attr.aria-pressed]="builderSpring()"
+                [attr.data-on]="builderSpring()"
+                (click)="builderSpring.set(!builderSpring())"
+              >
                 <span class="toggle-knob"></span>
               </button>
             </div>

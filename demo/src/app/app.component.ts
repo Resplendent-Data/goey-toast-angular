@@ -176,15 +176,20 @@ export class AppComponent {
   }
 
   setBuilderBorderWidth(value: string) {
-    this.builderBorderWidth.set(Number(value));
+    this.builderBorderWidth.set(this.parseFiniteOrCurrent(value, this.builderBorderWidth()));
   }
 
   setBuilderDisplayDuration(value: string) {
-    this.builderDisplayDuration.set(Number(value));
+    this.builderDisplayDuration.set(this.parseFiniteOrCurrent(value, this.builderDisplayDuration()));
   }
 
   setBuilderBounce(value: string) {
-    this.builderBounce.set(Number(value));
+    this.builderBounce.set(this.parseFiniteOrCurrent(value, this.builderBounce()));
+  }
+
+  private parseFiniteOrCurrent(value: string, current: number): number {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : current;
   }
 
   toastDefault() {

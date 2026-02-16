@@ -199,6 +199,8 @@ export class GoeyToastService {
     }
 
     if (typeof value === 'function') {
+      // Deliberate assertion: function-based messages are only used by callers
+      // that also provide an input payload (result/error) for interpolation.
       return value(input as T);
     }
 

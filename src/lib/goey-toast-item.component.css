@@ -23,11 +23,11 @@
 }
 
 .goey-wrapper.goey-finalClosing {
-  animation: goey-finalClose 220ms ease forwards;
+  animation: goey-final-close 220ms ease forwards;
 }
 
 .goey-wrapper.goey-right.goey-finalClosing {
-  animation: goey-finalCloseRight 220ms ease forwards;
+  animation: goey-final-close-right 220ms ease forwards;
 }
 
 .goey-blobSvg {
@@ -147,7 +147,7 @@
 }
 
 .goey-actionButton:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 2px solid currentcolor;
   outline-offset: 2px;
 }
 
@@ -195,7 +195,7 @@
   to { transform: rotate(360deg); }
 }
 
-@keyframes goey-finalClose {
+@keyframes goey-final-close {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -207,7 +207,7 @@
   }
 }
 
-@keyframes goey-finalCloseRight {
+@keyframes goey-final-close-right {
   from {
     opacity: 1;
     transform: scaleX(-1) translateY(0) scale(1);

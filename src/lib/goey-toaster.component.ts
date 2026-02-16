@@ -1,19 +1,26 @@
 import {
+  AfterViewInit,
   ChangeDetectionStrategy,
   Component,
+  ElementRef,
   effect,
   inject,
   Input,
   OnChanges,
   OnDestroy,
   OnInit,
+  QueryList,
   signal,
   SimpleChanges,
+  ViewChildren,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { Subscription } from 'rxjs';
 import { GoeyToastService } from './goey-toast.service';
 import { GoeyToastOffset, GoeyToastPosition, GoeyToastTheme } from './goey-toast.types';
 import { GoeyToastItemComponent } from './goey-toast-item.component';
+import { MAX_VISIBLE_STACK_TOASTS, TOAST_PILL_HEIGHT } from './goey-toast.constants';
+import { clamp, toCssLength } from './goey-toast.utils';
 
 @Component({
   selector: 'goey-toaster',
@@ -23,26 +30,32 @@ import { GoeyToastItemComponent } from './goey-toast-item.component';
   styleUrl: './goey-toaster.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
-  private static readonly PILL_HEIGHT = 34;
-
+export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
   @Input() position: GoeyToastPosition = 'bottom-right';
   @Input() theme: GoeyToastTheme = 'light';
   @Input() gap: number = 14;
   @Input() offset: GoeyToastOffset = 24;
   @Input() overlap: number = 24;
-  @Input() visibleToasts: number = 4;
+  /**
+   * Number of toasts to render in the stack.
+   * Clamped to [1, MAX_VISIBLE_STACK_TOASTS] to match upstream stacking behavior.
+   */
+  @Input() visibleToasts: number = MAX_VISIBLE_STACK_TOASTS;
   @Input() spring = true;
   @Input() bounce = 0.4;
 
   private readonly service = inject(GoeyToastService);
   private readonly stackHovered = signal(false);
   private readonly enteringHeadId = signal<string | null>(null);
+  private readonly stackHeights = signal<number[]>([]);
 
   readonly toasts = toSignal(this.service.toasts$, { initialValue: [] });
+  @ViewChildren('stackItem') private readonly stackItemRefs!: QueryList<ElementRef<HTMLDivElement>>;
 
   private previousHeadId: string | null = null;
   private enterClearTimer: ReturnType<typeof setTimeout> | null = null;
+  private stackResizeObserver: ResizeObserver | null = null;
+  private stackRefsSub: Subscription | null = null;
 
   constructor() {
     effect(() => {
@@ -51,11 +64,16 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
       if (!nextHeadId) {
         this.previousHeadId = null;
         this.enteringHeadId.set(null);
+        if (this.enterClearTimer) {
+          clearTimeout(this.enterClearTimer);
+          this.enterClearTimer = null;
+        }
         return;
       }
 
       if (this.previousHeadId === null) {
         this.previousHeadId = nextHeadId;
+        this.triggerHeadEntry(nextHeadId);
         return;
       }
 
@@ -64,16 +82,7 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
       }
 
       this.previousHeadId = nextHeadId;
-      this.enteringHeadId.set(nextHeadId);
-
-      if (this.enterClearTimer) {
-        clearTimeout(this.enterClearTimer);
-      }
-
-      this.enterClearTimer = setTimeout(() => {
-        this.enteringHeadId.set(null);
-        this.enterClearTimer = null;
-      }, 300);
+      this.triggerHeadEntry(nextHeadId);
     });
   }
 
@@ -87,11 +96,24 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  ngAfterViewInit(): void {
+    this.watchStackItems();
+    this.stackRefsSub = this.stackItemRefs.changes.subscribe(() => {
+      this.watchStackItems();
+    });
+  }
+
   ngOnDestroy(): void {
     if (this.enterClearTimer) {
       clearTimeout(this.enterClearTimer);
       this.enterClearTimer = null;
     }
+
+    this.stackResizeObserver?.disconnect();
+    this.stackResizeObserver = null;
+
+    this.stackRefsSub?.unsubscribe();
+    this.stackRefsSub = null;
   }
 
   offsetStyle(): string {
@@ -99,7 +121,7 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   visibleStackToasts() {
-    const max = clamp(Math.round(this.visibleToasts), 1, 4);
+    const max = clamp(Math.round(this.visibleToasts), 1, MAX_VISIBLE_STACK_TOASTS);
     return this.toasts().slice(0, max);
   }
 
@@ -109,6 +131,7 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
 
   onStackEnter(): void {
     this.stackHovered.set(true);
+    this.measureStackHeights();
   }
 
   onStackLeave(event: MouseEvent): void {
@@ -122,11 +145,21 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
 
   stackItemTransform(index: number): string {
     const direction = this.position.startsWith('bottom') ? -1 : 1;
-    const overlap = clamp(this.overlap, 1, GoeyToasterComponent.PILL_HEIGHT - 2);
-    const collapsedStep = GoeyToasterComponent.PILL_HEIGHT - overlap;
-    const expandedStep = GoeyToasterComponent.PILL_HEIGHT + Math.max(6, this.gap);
-    const step = this.stackHovered() ? expandedStep : collapsedStep;
-    const offset = direction * index * step;
+    const overlap = clamp(this.overlap, 1, TOAST_PILL_HEIGHT - 2);
+    const collapsedStep = TOAST_PILL_HEIGHT - overlap;
+    const expandedGap = Math.max(6, this.gap);
+    let distance = index * collapsedStep;
+
+    if (this.stackHovered()) {
+      const heights = this.stackHeights();
+      distance = 0;
+      for (let i = 0; i < index; i += 1) {
+        const height = heights[i] ?? TOAST_PILL_HEIGHT;
+        distance += height + expandedGap;
+      }
+    }
+
+    const offset = direction * distance;
 
     if (this.position.endsWith('center')) {
       return `translate(-50%, ${offset.toFixed(2)}px)`;
@@ -141,20 +174,50 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy {
       bounce: this.bounce,
     });
   }
-}
 
-function toCssLength(value: number | string): string {
-  return typeof value === 'number' ? `${value}px` : value;
-}
+  private triggerHeadEntry(headId: string): void {
+    this.enteringHeadId.set(headId);
 
-function clamp(value: number, min: number, max: number): number {
-  if (value < min) {
-    return min;
+    if (this.enterClearTimer) {
+      clearTimeout(this.enterClearTimer);
+    }
+
+    this.enterClearTimer = setTimeout(() => {
+      this.enteringHeadId.set(null);
+      this.enterClearTimer = null;
+    }, 420);
   }
 
-  if (value > max) {
-    return max;
+  private watchStackItems(): void {
+    this.stackResizeObserver?.disconnect();
+
+    if (typeof ResizeObserver === 'undefined') {
+      this.measureStackHeights();
+      return;
+    }
+
+    this.stackResizeObserver = new ResizeObserver(() => {
+      this.measureStackHeights();
+    });
+
+    this.stackItemRefs.forEach((itemRef) => {
+      this.stackResizeObserver?.observe(itemRef.nativeElement);
+    });
+
+    this.measureStackHeights();
   }
 
-  return value;
+  private measureStackHeights(): void {
+    if (!this.stackItemRefs) {
+      return;
+    }
+
+    const heights = this.stackItemRefs.toArray().map((itemRef) =>
+      Math.max(
+        TOAST_PILL_HEIGHT,
+        Math.round(itemRef.nativeElement.getBoundingClientRect().height)
+      )
+    );
+    this.stackHeights.set(heights);
+  }
 }

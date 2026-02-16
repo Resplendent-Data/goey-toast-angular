@@ -56,7 +56,7 @@ describe('GoeyToastService', () => {
     vi.useRealTimers();
   });
 
-  it('promise transitions keep a single toast id', async () => {
+  it('promise transitions result in a single toast', async () => {
     const service = new GoeyToastService();
 
     await service.promise(Promise.resolve('production'), {

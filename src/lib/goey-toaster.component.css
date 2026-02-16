@@ -20,13 +20,13 @@
 .top-left .goey-stackItemEntering .goey-stackItemInner,
 .top-center .goey-stackItemEntering .goey-stackItemInner,
 .top-right .goey-stackItemEntering .goey-stackItemInner {
-  animation: goey-stackEnterTop 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: goey-stack-enter-top 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .bottom-left .goey-stackItemEntering .goey-stackItemInner,
 .bottom-center .goey-stackItemEntering .goey-stackItemInner,
 .bottom-right .goey-stackItemEntering .goey-stackItemInner {
-  animation: goey-stackEnterBottom 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  animation: goey-stack-enter-bottom 420ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .top-left .goey-stackItem,
@@ -88,10 +88,15 @@
   top: auto;
 }
 
-@keyframes goey-stackEnterTop {
+@keyframes goey-stack-enter-top {
   from {
     opacity: 0;
-    transform: translateY(-14px) scale(0.985);
+    transform: translateY(-18px) scaleX(0.92) scaleY(1.08);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateY(2px) scaleX(1.035) scaleY(0.965);
   }
 
   to {
@@ -100,10 +105,15 @@
   }
 }
 
-@keyframes goey-stackEnterBottom {
+@keyframes goey-stack-enter-bottom {
   from {
     opacity: 0;
-    transform: translateY(14px) scale(0.985);
+    transform: translateY(18px) scaleX(0.92) scaleY(1.08);
+  }
+
+  65% {
+    opacity: 1;
+    transform: translateY(-2px) scaleX(1.035) scaleY(0.965);
   }
 
   to {
