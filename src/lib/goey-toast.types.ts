@@ -8,10 +8,29 @@ export type GoeyToastPosition =
   | 'bottom-center'
   | 'bottom-right';
 
+export type GoeyToastTheme = 'light' | 'dark';
+
+export type GoeyToastOffset = number | string;
+
 export interface GoeyToastAction {
   label: string;
   onClick: () => void;
   successLabel?: string;
+}
+
+export interface GoeyToastTimings {
+  displayDuration?: number;
+}
+
+export interface GoeyToastClassNames {
+  wrapper?: string;
+  content?: string;
+  header?: string;
+  title?: string;
+  icon?: string;
+  description?: string;
+  actionWrapper?: string;
+  actionButton?: string;
 }
 
 export interface GoeyToastOptions {
@@ -19,9 +38,11 @@ export interface GoeyToastOptions {
   description?: string;
   duration?: number;
   action?: GoeyToastAction;
+  classNames?: GoeyToastClassNames;
   fillColor?: string;
   borderColor?: string;
   borderWidth?: number;
+  timing?: GoeyToastTimings;
   spring?: boolean;
   bounce?: number; // 0.05 - 0.8
 }
@@ -39,9 +60,11 @@ export interface GoeyToastItem extends Required<Pick<GoeyToastOptions, 'spring' 
   description?: string;
   duration: number;
   action?: GoeyToastAction;
+  classNames?: GoeyToastClassNames;
   fillColor?: string;
   borderColor?: string;
   borderWidth?: number;
+  timing?: GoeyToastTimings;
   state: 'open' | 'closing';
 }
 
@@ -49,4 +72,20 @@ export interface GoeyPromiseData<T> {
   loading: string;
   success: string | ((data: T) => string);
   error: string | ((err: unknown) => string);
+  description?: {
+    loading?: string;
+    success?: string | ((data: T) => string);
+    error?: string | ((err: unknown) => string);
+  };
+  action?: {
+    success?: GoeyToastAction;
+    error?: GoeyToastAction;
+  };
+  classNames?: GoeyToastClassNames;
+  fillColor?: string;
+  borderColor?: string;
+  borderWidth?: number;
+  timing?: GoeyToastTimings;
+  spring?: boolean;
+  bounce?: number;
 }

@@ -1,22 +1,20 @@
-<div class="goey-toaster" [ngClass]="position" role="region" aria-live="polite" aria-label="Notifications">
-  <div
-    class="goey-toast"
-    *ngFor="let toast of toasts$ | async; trackBy: trackById"
-    [class.closing]="toast.state === 'closing'"
-    [ngClass]="typeClass(toast.type)"
-    [style.--goey-fill]="toast.fillColor || null"
-    [style.--goey-border]="toast.borderColor || null"
-    [style.--goey-border-width.px]="toast.borderWidth || 1.5"
-  >
-    <div class="header">
-      <div class="title">{{ toast.title }}</div>
-      <button type="button" class="close" (click)="dismiss(toast.id)" aria-label="Dismiss notification">×</button>
-    </div>
-
-    <div class="description" *ngIf="toast.description">{{ toast.description }}</div>
-
-    <div class="actions" *ngIf="toast.action">
-      <button type="button" class="action" (click)="runAction(toast)">{{ toast.action.label }}</button>
-    </div>
-  </div>
+<div
+  class="goey-toaster"
+  [style.--goey-gap]="gapStyle()"
+  [style.--goey-offset]="offsetStyle()"
+  [attr.data-goey-theme]="theme"
+  [attr.data-theme]="theme"
+  [class.top-left]="position === 'top-left'"
+  [class.top-center]="position === 'top-center'"
+  [class.top-right]="position === 'top-right'"
+  [class.bottom-left]="position === 'bottom-left'"
+  [class.bottom-center]="position === 'bottom-center'"
+  [class.bottom-right]="position === 'bottom-right'"
+  role="region"
+  aria-live="polite"
+  aria-label="Notifications"
+>
+  @for (toast of toasts(); track toast.id) {
+    <goey-toast-item [toast]="toast" [position]="position"></goey-toast-item>
+  }
 </div>

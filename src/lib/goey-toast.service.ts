@@ -29,22 +29,18 @@ export class GoeyToastService {
       description: options.description,
       duration: options.duration ?? this.defaults.duration,
       action: options.action,
+      classNames: options.classNames,
       fillColor: options.fillColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
+      timing: options.timing,
       spring: options.spring ?? this.defaults.spring,
       bounce: options.bounce ?? this.defaults.bounce,
       state: 'open',
     };
 
-    this._toasts.next([item, ...this._toasts.value]);
-
-    if (item.duration > 0 && type !== 'loading') {
-      this.timers.set(
-        id,
-        setTimeout(() => this.dismiss(id), item.duration)
-      );
-    }
+    this._toasts.next([item, ...this._toasts.value.filter((toast) => toast.id !== id)]);
+    this.armDismissTimer(item);
 
     return id;
   }
@@ -70,7 +66,21 @@ export class GoeyToastService {
   }
 
   update(id: string, patch: Partial<Omit<GoeyToastItem, 'id'>>) {
-    this._toasts.next(this._toasts.value.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+    let updatedToast: GoeyToastItem | undefined;
+    this._toasts.next(
+      this._toasts.value.map((toast) => {
+        if (toast.id !== id) {
+          return toast;
+        }
+
+        updatedToast = { ...toast, ...patch };
+        return updatedToast;
+      })
+    );
+
+    if (updatedToast) {
+      this.armDismissTimer(updatedToast);
+    }
   }
 
   dismiss(id?: string) {
@@ -93,17 +103,106 @@ export class GoeyToastService {
   }
 
   async promise<T>(promise: Promise<T>, data: GoeyPromiseData<T>, options?: GoeyToastOptions): Promise<T> {
-    const id = this.loading(data.loading, options);
+    const id = this.loading(data.loading, {
+      ...options,
+      description: this.resolveMaybeMessage(data.description?.loading),
+      classNames: data.classNames ?? options?.classNames,
+      fillColor: data.fillColor ?? options?.fillColor,
+      borderColor: data.borderColor ?? options?.borderColor,
+      borderWidth: data.borderWidth ?? options?.borderWidth,
+      timing: data.timing ?? options?.timing,
+      spring: data.spring ?? options?.spring,
+      bounce: data.bounce ?? options?.bounce,
+    });
+
     try {
       const result = await promise;
-      this.dismiss(id);
-      this.success(typeof data.success === 'function' ? data.success(result) : data.success, options);
+
+      this.update(id, {
+        title: this.resolveMessage(data.success, result),
+        type: 'success',
+        description: this.resolveMaybeMessage(data.description?.success, result),
+        action: data.action?.success,
+        duration: options?.duration ?? this.defaults.duration,
+        classNames: data.classNames ?? options?.classNames,
+        fillColor: data.fillColor ?? options?.fillColor,
+        borderColor: data.borderColor ?? options?.borderColor,
+        borderWidth: data.borderWidth ?? options?.borderWidth,
+        timing: data.timing ?? options?.timing,
+        spring: data.spring ?? options?.spring ?? this.defaults.spring,
+        bounce: data.bounce ?? options?.bounce ?? this.defaults.bounce,
+        state: 'open',
+      });
+
       return result;
     } catch (err) {
-      this.dismiss(id);
-      this.error(typeof data.error === 'function' ? data.error(err) : data.error, options);
+      this.update(id, {
+        title: this.resolveMessage(data.error, err),
+        type: 'error',
+        description: this.resolveMaybeMessage(data.description?.error, err),
+        action: data.action?.error,
+        duration: options?.duration ?? this.defaults.duration,
+        classNames: data.classNames ?? options?.classNames,
+        fillColor: data.fillColor ?? options?.fillColor,
+        borderColor: data.borderColor ?? options?.borderColor,
+        borderWidth: data.borderWidth ?? options?.borderWidth,
+        timing: data.timing ?? options?.timing,
+        spring: data.spring ?? options?.spring ?? this.defaults.spring,
+        bounce: data.bounce ?? options?.bounce ?? this.defaults.bounce,
+        state: 'open',
+      });
+
       throw err;
     }
+  }
+
+  private armDismissTimer(toast: GoeyToastItem) {
+    this.clearTimer(toast.id);
+
+    if (!this.shouldAutoDismiss(toast)) {
+      return;
+    }
+
+    this.timers.set(
+      toast.id,
+      setTimeout(() => this.dismiss(toast.id), toast.duration)
+    );
+  }
+
+  private shouldAutoDismiss(toast: GoeyToastItem) {
+    if (toast.state === 'closing') {
+      return false;
+    }
+
+    if (toast.duration <= 0 || toast.type === 'loading') {
+      return false;
+    }
+
+    const hasExpandedBody = Boolean(toast.description || toast.action);
+    return !hasExpandedBody;
+  }
+
+  private resolveMessage<T>(value: string | ((input: T) => string), input: T): string {
+    if (typeof value === 'function') {
+      return value(input);
+    }
+
+    return value;
+  }
+
+  private resolveMaybeMessage<T>(
+    value: string | ((input: T) => string) | undefined,
+    input?: T
+  ): string | undefined {
+    if (typeof value === 'undefined') {
+      return undefined;
+    }
+
+    if (typeof value === 'function') {
+      return value(input as T);
+    }
+
+    return value;
   }
 
   private clearTimer(id: string) {

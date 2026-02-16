@@ -5,6 +5,7 @@
     "entryFile": "src/public-api.ts"
   },
   "assets": [
-    "src/lib/goey-toaster.component.css"
+    "src/lib/goey-toaster.component.css",
+    "src/lib/goey-toast-item.component.css"
   ]
 }
