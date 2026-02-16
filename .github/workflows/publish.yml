@@ -18,13 +18,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
           cache: npm
-          token: ''
+          # REMOVED: registry-url (Creates conflict with OIDC)
+          # REMOVED: token: '' (Unnecessary and risky)
 
-      - name: Upgrade npm for Trusted Publishing
+      - name: Upgrade npm
         run: |
-          npm install -g npm@11
+          npm install -g npm@latest
           npm --version
 
       - name: Install
@@ -36,19 +36,15 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Verify OIDC is available
-        run: |
-          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
-          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
-
+      # --- BRANCH 1: Legacy Token (Fallback) ---
       - name: Publish with npm token fallback
         if: ${{ secrets.NPM_TOKEN != '' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public
+        run: |
+          # Manually create .npmrc only if we have a token
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
+          npm publish --access public
 
+      # --- BRANCH 2: Trusted Publishing (OIDC) ---
       - name: Publish (Trusted Publishing / OIDC)
         if: ${{ secrets.NPM_TOKEN == '' }}
-        env:
-          NODE_AUTH_TOKEN: ''
         run: npm publish --provenance --access public
