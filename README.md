@@ -116,8 +116,8 @@ npm run build
 
 This repo uses:
 
-- `release-please.yml` to open/update release PRs and create GitHub Releases
-- `publish.yml` to publish to npm on pushes to `master` (and via `workflow_dispatch`)
+- `release-please.yml` to open/update release PRs, create GitHub Releases, and publish to npm
+- `publish.yml` as a manual fallback publish workflow (`workflow_dispatch`)
 
 Typical flow:
 
