@@ -19,8 +19,6 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          # REMOVED: registry-url (Creates conflict with OIDC)
-          # REMOVED: token: '' (Unnecessary and risky)
 
       - name: Upgrade npm
         run: |
@@ -36,15 +34,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      # --- BRANCH 1: Legacy Token (Fallback) ---
-      - name: Publish with npm token fallback
-        if: ${{ secrets.NPM_TOKEN != '' }}
-        run: |
-          # Manually create .npmrc only if we have a token
-          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-          npm publish --access public
-
-      # --- BRANCH 2: Trusted Publishing (OIDC) ---
       - name: Publish (Trusted Publishing / OIDC)
-        if: ${{ secrets.NPM_TOKEN == '' }}
         run: npm publish --provenance --access public
