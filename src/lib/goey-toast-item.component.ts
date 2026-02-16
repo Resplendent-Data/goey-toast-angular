@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   ChangeDetectionStrategy,
   Component,
   ElementRef,
@@ -47,6 +48,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   @ViewChild('header', { static: true }) private readonly headerRef!: ElementRef<HTMLDivElement>;
 
   private readonly service = inject(GoeyToastService);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly renderBody = signal(false);
   readonly bodyVisible = signal(false);
@@ -78,6 +80,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private preDismissTimer: ReturnType<typeof setTimeout> | null = null;
   private dismissAfterCollapseTimer: ReturnType<typeof setTimeout> | null = null;
   private actionSuccessTimer: ReturnType<typeof setTimeout> | null = null;
+  private bodyRevealTimer: ReturnType<typeof setTimeout> | null = null;
 
   private remainingDismissMs: number | null = null;
   private dismissTimerArmedMs = 0;
@@ -242,6 +245,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
   private syncFromToast(): void {
     this.measureCollapsedDims();
+    this.applyMorphFrame();
 
     if (this.toast.state === 'closing') {
       this.stopShakeAnimation(true);
@@ -279,16 +283,22 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private expandIntoBlob(): void {
     this.stopExpandedLifecycleTimers();
     this.preDismissing = false;
-    this.renderBody.set(true);
     this.bodyVisible.set(false);
+    this.renderBody.set(false);
+    this.morphProgress = 0;
+    this.applyMorphFrame();
 
     const expandDelay = this.prefersReducedMotion ? 0 : EXPAND_DELAY_MS;
     this.expandTimer = setTimeout(() => {
+      this.renderBody.set(true);
+      this.cdr.detectChanges();
       this.measureExpandedDims();
-      this.animateMorphTo(1, () => {
+      this.applyMorphFrame();
+      this.animateMorphTo(1);
+      this.bodyRevealTimer = setTimeout(() => {
         this.bodyVisible.set(true);
-        this.startPreDismissTimer();
-      });
+      }, this.prefersReducedMotion ? 0 : 90);
+      this.startPreDismissTimer();
     }, expandDelay);
   }
 
@@ -351,15 +361,15 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
 
     this.renderBody.set(true);
-    this.bodyVisible.set(false);
+    this.cdr.detectChanges();
     this.measureExpandedDims();
+    this.applyMorphFrame();
+    this.bodyVisible.set(true);
+    this.animateMorphTo(1);
 
-    this.animateMorphTo(1, () => {
-      this.bodyVisible.set(true);
-      if (!this.hovering) {
-        this.startPreDismissTimer();
-      }
-    });
+    if (!this.hovering) {
+      this.startPreDismissTimer();
+    }
   }
 
   private collapseToPill(onComplete?: () => void): void {
@@ -605,6 +615,11 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     if (this.expandTimer) {
       clearTimeout(this.expandTimer);
       this.expandTimer = null;
+    }
+
+    if (this.bodyRevealTimer) {
+      clearTimeout(this.bodyRevealTimer);
+      this.bodyRevealTimer = null;
     }
 
     if (this.preDismissTimer) {

@@ -1,6 +1,5 @@
 <div
   class="goey-toaster"
-  [style.--goey-gap]="gapStyle()"
   [style.--goey-offset]="offsetStyle()"
   [attr.data-goey-theme]="theme"
   [attr.data-theme]="theme"
@@ -14,7 +13,18 @@
   aria-live="polite"
   aria-label="Notifications"
 >
-  @for (toast of toasts(); track toast.id) {
-    <goey-toast-item [toast]="toast" [position]="position"></goey-toast-item>
+  @for (toast of visibleStackToasts(); track toast.id; let i = $index; let count = $count) {
+    <div
+      class="goey-stackItem"
+      [style.z-index]="count - i"
+      [style.transform]="stackItemTransform(i)"
+      [class.goey-stackItemEntering]="isEnteringToast(toast.id, i)"
+      (mouseenter)="onStackEnter()"
+      (mouseleave)="onStackLeave($event)"
+    >
+      <div class="goey-stackItemInner">
+        <goey-toast-item [toast]="toast" [position]="position"></goey-toast-item>
+      </div>
+    </div>
   }
 </div>

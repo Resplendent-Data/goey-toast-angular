@@ -53,6 +53,7 @@
 
 .goey-contentExpanded {
   padding: 7px 10px 16px 10px;
+  min-width: min(340px, calc(100vw - 48px));
   max-width: 380px;
 }
 

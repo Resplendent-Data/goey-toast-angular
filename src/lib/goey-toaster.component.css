@@ -1,52 +1,113 @@
 .goey-toaster {
   position: fixed;
   z-index: 10000;
-  display: flex;
-  flex-direction: column;
-  gap: var(--goey-gap, 14px);
-  width: fit-content;
-  max-width: calc(100vw - (var(--goey-offset, 24px) * 2));
+  width: 0;
+  height: 0;
   pointer-events: none;
 }
 
-.top-left {
+.goey-stackItem {
+  position: absolute;
+  pointer-events: auto;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.goey-stackItemInner {
+  display: block;
+}
+
+.top-left .goey-stackItemEntering .goey-stackItemInner,
+.top-center .goey-stackItemEntering .goey-stackItemInner,
+.top-right .goey-stackItemEntering .goey-stackItemInner {
+  animation: goey-stackEnterTop 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bottom-left .goey-stackItemEntering .goey-stackItemInner,
+.bottom-center .goey-stackItemEntering .goey-stackItemInner,
+.bottom-right .goey-stackItemEntering .goey-stackItemInner {
+  animation: goey-stackEnterBottom 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.top-left .goey-stackItem,
+.top-center .goey-stackItem,
+.top-right .goey-stackItem {
+  top: 0;
+}
+
+.bottom-left .goey-stackItem,
+.bottom-center .goey-stackItem,
+.bottom-right .goey-stackItem {
+  bottom: 0;
+}
+
+.top-left .goey-stackItem,
+.bottom-left .goey-stackItem,
+.top-center .goey-stackItem,
+.bottom-center .goey-stackItem {
+  left: 0;
+}
+
+.top-right .goey-stackItem,
+.bottom-right .goey-stackItem {
+  right: 0;
+}
+
+.top-left,
+.bottom-left {
   top: var(--goey-offset, 24px);
   left: var(--goey-offset, 24px);
-  align-items: flex-start;
 }
 
 .top-center {
   top: var(--goey-offset, 24px);
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
+  left: 50%;
 }
 
-.top-right {
+.top-right,
+.bottom-right {
   top: var(--goey-offset, 24px);
   right: var(--goey-offset, 24px);
-  align-items: flex-end;
 }
 
 .bottom-left {
   bottom: var(--goey-offset, 24px);
   left: var(--goey-offset, 24px);
-  align-items: flex-start;
+  top: auto;
 }
 
 .bottom-center {
   bottom: var(--goey-offset, 24px);
-  left: 0;
-  right: 0;
-  margin-left: auto;
-  margin-right: auto;
-  align-items: center;
+  left: 50%;
+  top: auto;
 }
 
 .bottom-right {
   bottom: var(--goey-offset, 24px);
   right: var(--goey-offset, 24px);
-  align-items: flex-end;
+  top: auto;
+}
+
+@keyframes goey-stackEnterTop {
+  from {
+    opacity: 0;
+    transform: translateY(-14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes goey-stackEnterBottom {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
