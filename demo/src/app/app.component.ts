@@ -22,18 +22,24 @@ const POSITIONS: GoeyToastPosition[] = [
 
 const TOAST_TYPES: DemoToastType[] = ['default', 'success', 'error', 'warning', 'info'];
 const TONE_TYPES: GoeyToastType[] = ['default', 'success', 'error', 'warning', 'info', 'loading'];
+const DEFAULT_FILL_COLOR = '#222B45';
+const DEFAULT_BORDER_COLOR = '#3366FF';
+const DEFAULT_BORDER_WIDTH = 1;
+const DEFAULT_DURATION = 4000;
+const DEFAULT_SPRING = true;
+const DEFAULT_BOUNCE = 0.4;
 const DEFAULT_TYPE_COLORS: Record<GoeyToastType, string> = {
-  default: '#555555',
-  success: '#4caf50',
-  error: '#e53935',
-  warning: '#c49000',
-  info: '#1e88e5',
-  loading: '#555555',
+  default: '#8F9BB3',
+  success: '#00D68F',
+  error: '#FF3D71',
+  warning: '#FFAA00',
+  info: '#0095FF',
+  loading: '#8F9BB3',
 };
 const DEFAULT_RADIUS: Required<GoeyToastRadius> = {
-  pill: 17,
-  body: 16,
-  action: 999,
+  pill: 12,
+  body: 8,
+  action: 6,
 };
 
 @Component({
@@ -61,20 +67,20 @@ export class AppComponent {
   readonly builderHasAction = signal(false);
   readonly builderActionLabel = signal('Undo');
 
-  readonly builderFillColor = signal('#ffffff');
+  readonly builderFillColor = signal(DEFAULT_FILL_COLOR);
   readonly builderTypeColors = signal<GoeyToastTypeColors>({ ...DEFAULT_TYPE_COLORS });
   readonly builderHasBorder = signal(false);
-  readonly builderBorderColor = signal('#e0e0e0');
-  readonly builderBorderWidth = signal(1.5);
+  readonly builderBorderColor = signal(DEFAULT_BORDER_COLOR);
+  readonly builderBorderWidth = signal(DEFAULT_BORDER_WIDTH);
   readonly builderPillRadius = signal(DEFAULT_RADIUS.pill);
   readonly builderBodyRadius = signal(DEFAULT_RADIUS.body);
   readonly builderActionRadius = signal(
     typeof DEFAULT_RADIUS.action === 'number' ? DEFAULT_RADIUS.action : 999
   );
 
-  readonly builderDisplayDuration = signal(4000);
-  readonly builderSpring = signal(true);
-  readonly builderBounce = signal(0.4);
+  readonly builderDisplayDuration = signal(DEFAULT_DURATION);
+  readonly builderSpring = signal(DEFAULT_SPRING);
+  readonly builderBounce = signal(DEFAULT_BOUNCE);
 
   readonly installCopied = signal(false);
   readonly codeCopied = signal(false);
@@ -84,19 +90,20 @@ export class AppComponent {
 
     const type = this.builderType();
     const title = this.builderTitle().trim() || 'Changes saved';
+    const fillColor = this.builderFillColor().trim();
     const hasDescription = this.builderHasDescription() && Boolean(this.builderDescription().trim());
     const hasAction = this.builderHasAction() && Boolean(this.builderActionLabel().trim());
-    const hasFillColor = this.builderFillColor().toLowerCase() !== '#ffffff';
+    const hasFillColor = Boolean(fillColor);
     const hasBorder = this.builderHasBorder() && Boolean(this.builderBorderColor().trim());
-    const hasCustomDuration = this.builderDisplayDuration() !== 4000;
-    const hasCustomSpring = !this.builderSpring();
-    const hasCustomBounce = this.builderBounce() !== 0.4;
+    const hasCustomDuration = this.builderDisplayDuration() !== DEFAULT_DURATION;
+    const hasCustomSpring = this.builderSpring() !== DEFAULT_SPRING;
+    const hasCustomBounce = this.builderBounce() !== DEFAULT_BOUNCE;
     const customTypeColors = this.customTypeColors();
     const customRadius = this.customRadius();
     const hasCustomTypeColors = Object.keys(customTypeColors).length > 0;
     const hasCustomRadius = Object.keys(customRadius).length > 0;
 
-    lines.push(`<goey-toaster position="${this.builderPosition()}"></goey-toaster>`);
+    lines.push(`<goey-toaster theme="dark" position="${this.builderPosition()}"></goey-toaster>`);
     lines.push('');
 
     const callName = type === 'default' ? 'toast.show' : `toast.${type}`;
@@ -131,7 +138,7 @@ export class AppComponent {
     }
 
     if (hasFillColor) {
-      lines.push(`  fillColor: '${this.builderFillColor()}',`);
+      lines.push(`  fillColor: '${fillColor}',`);
     }
 
     if (hasBorder) {
@@ -185,9 +192,11 @@ export class AppComponent {
 
   constructor() {
     this.toast.setDefaults({
-      duration: 4000,
-      spring: true,
-      bounce: 0.4,
+      duration: DEFAULT_DURATION,
+      spring: DEFAULT_SPRING,
+      bounce: DEFAULT_BOUNCE,
+      typeColors: { ...DEFAULT_TYPE_COLORS },
+      radius: { ...DEFAULT_RADIUS },
     });
   }
 
@@ -204,6 +213,7 @@ export class AppComponent {
   }
 
   fireBuilderToast() {
+    const fillColor = this.builderFillColor().trim();
     const options: GoeyToastOptions = {
       timing: {
         displayDuration: this.builderDisplayDuration(),
@@ -211,6 +221,10 @@ export class AppComponent {
       spring: this.builderSpring(),
       bounce: this.builderBounce(),
     };
+
+    if (fillColor) {
+      options.fillColor = fillColor;
+    }
 
     if (this.builderHasDescription() && this.builderDescription().trim()) {
       options.description = this.builderDescription().trim();
@@ -222,10 +236,6 @@ export class AppComponent {
         onClick: () => undefined,
         successLabel: 'Done!',
       };
-    }
-
-    if (this.builderFillColor().toLowerCase() !== '#ffffff') {
-      options.fillColor = this.builderFillColor();
     }
 
     if (this.builderHasBorder()) {
@@ -394,10 +404,16 @@ export class AppComponent {
   }
 
   promiseSuccessPill() {
+    const defaults = this.defaultOptions();
     this.toast.promise(this.sleep(1800), {
       loading: 'Saving...',
       success: 'Changes saved',
       error: 'Something went wrong',
+      fillColor: defaults.fillColor,
+      borderColor: defaults.borderColor,
+      borderWidth: defaults.borderWidth,
+      typeColors: defaults.typeColors,
+      radius: defaults.radius,
       timing: {
         displayDuration: 3600,
       },
@@ -407,10 +423,16 @@ export class AppComponent {
   }
 
   promiseErrorExpanded() {
+    const defaults = this.defaultOptions();
     this.toast.promise(this.failAfter(1800), {
       loading: 'Uploading file...',
       success: 'Upload complete',
       error: 'Upload failed',
+      fillColor: defaults.fillColor,
+      borderColor: defaults.borderColor,
+      borderWidth: defaults.borderWidth,
+      typeColors: defaults.typeColors,
+      radius: defaults.radius,
       description: {
         error: 'You are over your storage quota. Upgrade your plan and retry.',
       },
@@ -428,11 +450,14 @@ export class AppComponent {
 
   private defaultOptions(): GoeyToastOptions {
     return {
+      fillColor: DEFAULT_FILL_COLOR,
+      typeColors: { ...DEFAULT_TYPE_COLORS },
+      radius: { ...DEFAULT_RADIUS },
       timing: {
         displayDuration: 3200,
       },
-      spring: true,
-      bounce: 0.4,
+      spring: DEFAULT_SPRING,
+      bounce: DEFAULT_BOUNCE,
     };
   }
 

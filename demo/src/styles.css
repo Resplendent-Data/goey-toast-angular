@@ -1,4 +1,35 @@
-@import 'https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;600;700;800&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap';
+:root {
+  color-scheme: dark;
+
+  --rd-surface-1: #222b45;
+  --rd-surface-2: #192038;
+  --rd-surface-3: #151a30;
+  --rd-surface-4: #101426;
+
+  --rd-text-primary: #ffffff;
+  --rd-text-secondary: #8f9bb3;
+  --rd-text-disabled: rgba(143, 155, 179, 0.48);
+
+  --rd-primary: #3366ff;
+  --rd-success: #00d68f;
+  --rd-info: #0095ff;
+  --rd-warning: #ffaa00;
+  --rd-danger: #ff3d71;
+
+  --rd-radius-card: 12px;
+  --rd-radius-inner: 8px;
+  --rd-radius-small: 6px;
+
+  --rd-font-body: 'muller', 'Open Sans', 'Segoe UI', sans-serif;
+  --rd-font-strong: 'muller-bold', 'muller', 'Open Sans', 'Segoe UI', sans-serif;
+  --rd-font-chart: 'muller', 'Open Sans', 'Segoe UI', sans-serif;
+
+  /* Nebular JS theme variable compatibility for JS consumers. */
+  --nb-font-family-primary: 'Open Sans', var(--rd-font-body);
+  --nb-font-family-secondary: 'Raleway', var(--rd-font-strong);
+  --nb-font-family-article: 'Open Sans', var(--rd-font-body);
+  --nb-font-family-header: 'Raleway', var(--rd-font-strong);
+}
 
 * {
   box-sizing: border-box;
@@ -8,16 +39,71 @@ html,
 body {
   margin: 0;
   padding: 0;
+  min-height: 100%;
 }
 
 html {
+  background: var(--rd-surface-4);
   scroll-behavior: smooth;
 }
 
 body {
-  background: #fafaf7;
-  color: #1a1a1a;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--rd-font-body);
+  color: var(--rd-text-primary);
+  background:
+    radial-gradient(circle at 8% 0%, rgba(51, 102, 255, 0.2), transparent 40%),
+    radial-gradient(circle at 92% 0%, rgba(255, 170, 0, 0.12), transparent 34%),
+    linear-gradient(180deg, #131a30 0%, var(--rd-surface-4) 40%, #0d1223 100%);
+  background-color: var(--rd-surface-4);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--rd-primary) 48%, transparent);
+  color: var(--rd-text-primary);
+}
+
+* {
+  scrollbar-color: color-mix(in srgb, var(--rd-primary) 52%, transparent)
+    color-mix(in srgb, var(--rd-surface-2) 90%, transparent);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-track {
+  background: color-mix(in srgb, var(--rd-surface-2) 90%, transparent);
+}
+
+*::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  border: 2px solid color-mix(in srgb, var(--rd-surface-2) 90%, transparent);
+  background: color-mix(in srgb, var(--rd-primary) 54%, transparent);
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--rd-primary) 72%, transparent);
+}
+
+/* Theme-driven AG Grid defaults if the consumer app mounts a grid. */
+.ag-theme-alpine,
+.ag-theme-alpine-dark,
+.ag-theme-balham,
+.ag-theme-balham-dark,
+.ag-theme-quartz,
+.ag-theme-quartz-dark {
+  --ag-font-family: var(--rd-font-chart);
+  --ag-background-color: var(--rd-surface-1);
+  --ag-header-background-color: var(--rd-surface-2);
+  --ag-odd-row-background-color: color-mix(in srgb, var(--rd-surface-3) 78%, transparent);
+  --ag-row-hover-color: color-mix(in srgb, var(--rd-primary) 22%, transparent);
+  --ag-selected-row-background-color: color-mix(in srgb, var(--rd-primary) 28%, transparent);
+  --ag-foreground-color: var(--rd-text-primary);
+  --ag-secondary-foreground-color: var(--rd-text-secondary);
+  --ag-border-color: color-mix(in srgb, var(--rd-primary) 22%, rgba(255, 255, 255, 0.08));
+  --ag-header-foreground-color: var(--rd-text-primary);
 }
