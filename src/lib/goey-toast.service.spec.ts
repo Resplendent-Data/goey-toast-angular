@@ -56,6 +56,28 @@ describe('GoeyToastService', () => {
     vi.useRealTimers();
   });
 
+  it('applies per-type colors and radius options', async () => {
+    const service = new GoeyToastService();
+
+    service.error('Custom tone', {
+      typeColors: {
+        error: '#ff2d2d',
+      },
+      radius: {
+        pill: 12,
+        body: 10,
+        action: 14,
+      },
+    });
+
+    const toasts = await firstValueFrom(service.toasts$.pipe(take(1)));
+    expect(toasts).toHaveLength(1);
+    expect(toasts[0].typeColors?.error).toBe('#ff2d2d');
+    expect(toasts[0].radius?.pill).toBe(12);
+    expect(toasts[0].radius?.body).toBe(10);
+    expect(toasts[0].radius?.action).toBe(14);
+  });
+
   it('promise transitions result in a single toast', async () => {
     const service = new GoeyToastService();
 

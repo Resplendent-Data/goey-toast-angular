@@ -2,9 +2,11 @@ import { ChangeDetectionStrategy, Component, WritableSignal, computed, inject, s
 import {
   GoeyToasterComponent,
   GoeyToastOptions,
+  GoeyToastRadius,
   GoeyToastPosition,
   GoeyToastService,
   GoeyToastType,
+  GoeyToastTypeColors,
 } from 'goey-toast-angular';
 
 type DemoToastType = Exclude<GoeyToastType, 'loading'>;
@@ -19,6 +21,20 @@ const POSITIONS: GoeyToastPosition[] = [
 ];
 
 const TOAST_TYPES: DemoToastType[] = ['default', 'success', 'error', 'warning', 'info'];
+const TONE_TYPES: GoeyToastType[] = ['default', 'success', 'error', 'warning', 'info', 'loading'];
+const DEFAULT_TYPE_COLORS: Record<GoeyToastType, string> = {
+  default: '#555555',
+  success: '#4caf50',
+  error: '#e53935',
+  warning: '#c49000',
+  info: '#1e88e5',
+  loading: '#555555',
+};
+const DEFAULT_RADIUS: Required<GoeyToastRadius> = {
+  pill: 17,
+  body: 16,
+  action: 999,
+};
 
 @Component({
   selector: 'app-root',
@@ -33,6 +49,7 @@ export class AppComponent {
 
   readonly positions = POSITIONS;
   readonly toastTypes = TOAST_TYPES;
+  readonly toneTypes = TONE_TYPES;
 
   readonly builderPosition = signal<GoeyToastPosition>('top-left');
   readonly builderType = signal<DemoToastType>('success');
@@ -45,9 +62,15 @@ export class AppComponent {
   readonly builderActionLabel = signal('Undo');
 
   readonly builderFillColor = signal('#ffffff');
+  readonly builderTypeColors = signal<GoeyToastTypeColors>({ ...DEFAULT_TYPE_COLORS });
   readonly builderHasBorder = signal(false);
   readonly builderBorderColor = signal('#e0e0e0');
   readonly builderBorderWidth = signal(1.5);
+  readonly builderPillRadius = signal(DEFAULT_RADIUS.pill);
+  readonly builderBodyRadius = signal(DEFAULT_RADIUS.body);
+  readonly builderActionRadius = signal(
+    typeof DEFAULT_RADIUS.action === 'number' ? DEFAULT_RADIUS.action : 999
+  );
 
   readonly builderDisplayDuration = signal(4000);
   readonly builderSpring = signal(true);
@@ -68,13 +91,25 @@ export class AppComponent {
     const hasCustomDuration = this.builderDisplayDuration() !== 4000;
     const hasCustomSpring = !this.builderSpring();
     const hasCustomBounce = this.builderBounce() !== 0.4;
+    const customTypeColors = this.customTypeColors();
+    const customRadius = this.customRadius();
+    const hasCustomTypeColors = Object.keys(customTypeColors).length > 0;
+    const hasCustomRadius = Object.keys(customRadius).length > 0;
 
     lines.push(`<goey-toaster position="${this.builderPosition()}"></goey-toaster>`);
     lines.push('');
 
     const callName = type === 'default' ? 'toast.show' : `toast.${type}`;
     const hasOptions =
-      hasDescription || hasAction || hasFillColor || hasBorder || hasCustomDuration || hasCustomSpring || hasCustomBounce;
+      hasDescription ||
+      hasAction ||
+      hasFillColor ||
+      hasBorder ||
+      hasCustomDuration ||
+      hasCustomSpring ||
+      hasCustomBounce ||
+      hasCustomTypeColors ||
+      hasCustomRadius;
 
     if (!hasOptions) {
       lines.push(`${callName}('${escapeSingleQuote(title)}');`);
@@ -102,6 +137,32 @@ export class AppComponent {
     if (hasBorder) {
       lines.push(`  borderColor: '${this.builderBorderColor()}',`);
       lines.push(`  borderWidth: ${this.builderBorderWidth()},`);
+    }
+
+    if (hasCustomTypeColors) {
+      lines.push('  typeColors: {');
+      for (const toneType of this.toneTypes) {
+        const color = customTypeColors[toneType];
+        if (!color) {
+          continue;
+        }
+        lines.push(`    ${toneType}: '${color}',`);
+      }
+      lines.push('  },');
+    }
+
+    if (hasCustomRadius) {
+      lines.push('  radius: {');
+      if (typeof customRadius.pill === 'number') {
+        lines.push(`    pill: ${customRadius.pill},`);
+      }
+      if (typeof customRadius.body === 'number') {
+        lines.push(`    body: ${customRadius.body},`);
+      }
+      if (typeof customRadius.action === 'number') {
+        lines.push(`    action: ${customRadius.action},`);
+      }
+      lines.push('  },');
     }
 
     if (hasCustomDuration) {
@@ -172,11 +233,32 @@ export class AppComponent {
       options.borderWidth = this.builderBorderWidth();
     }
 
+    const customTypeColors = this.customTypeColors();
+    if (Object.keys(customTypeColors).length > 0) {
+      options.typeColors = customTypeColors;
+    }
+
+    const customRadius = this.customRadius();
+    if (Object.keys(customRadius).length > 0) {
+      options.radius = customRadius;
+    }
+
     this.showByType(this.builderType(), this.builderTitle().trim() || 'Changes saved', options);
   }
 
   setBuilderBorderWidth(value: string) {
     this.builderBorderWidth.set(this.parseFiniteOrCurrent(value, this.builderBorderWidth()));
+  }
+
+  setBuilderTypeColor(type: GoeyToastType, value: string) {
+    this.builderTypeColors.update((colors) => ({
+      ...colors,
+      [type]: value,
+    }));
+  }
+
+  builderToneColor(type: GoeyToastType): string {
+    return this.builderTypeColors()[type] ?? DEFAULT_TYPE_COLORS[type];
   }
 
   setBuilderDisplayDuration(value: string) {
@@ -187,9 +269,57 @@ export class AppComponent {
     this.builderBounce.set(this.parseFiniteOrCurrent(value, this.builderBounce()));
   }
 
+  setBuilderPillRadius(value: string) {
+    this.builderPillRadius.set(this.parseFiniteOrCurrent(value, this.builderPillRadius()));
+  }
+
+  setBuilderBodyRadius(value: string) {
+    this.builderBodyRadius.set(this.parseFiniteOrCurrent(value, this.builderBodyRadius()));
+  }
+
+  setBuilderActionRadius(value: string) {
+    this.builderActionRadius.set(this.parseFiniteOrCurrent(value, this.builderActionRadius()));
+  }
+
   private parseFiniteOrCurrent(value: string, current: number): number {
     const parsed = Number(value);
     return Number.isFinite(parsed) ? parsed : current;
+  }
+
+  private customTypeColors(): GoeyToastTypeColors {
+    const colors = this.builderTypeColors();
+    const custom: GoeyToastTypeColors = {};
+
+    for (const type of this.toneTypes) {
+      const color = colors[type];
+      if (!color) {
+        continue;
+      }
+
+      if (color.toLowerCase() !== DEFAULT_TYPE_COLORS[type].toLowerCase()) {
+        custom[type] = color;
+      }
+    }
+
+    return custom;
+  }
+
+  private customRadius(): GoeyToastRadius {
+    const custom: GoeyToastRadius = {};
+
+    if (this.builderPillRadius() !== DEFAULT_RADIUS.pill) {
+      custom.pill = this.builderPillRadius();
+    }
+
+    if (this.builderBodyRadius() !== DEFAULT_RADIUS.body) {
+      custom.body = this.builderBodyRadius();
+    }
+
+    if (this.builderActionRadius() !== DEFAULT_RADIUS.action) {
+      custom.action = this.builderActionRadius();
+    }
+
+    return custom;
   }
 
   toastDefault() {

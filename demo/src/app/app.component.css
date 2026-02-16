@@ -464,6 +464,13 @@ button:hover {
   gap: 12px;
 }
 
+.type-color-grid {
+  display: grid;
+  gap: 8px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
+}
+
 .color-row {
   display: flex;
   align-items: center;
@@ -502,6 +509,13 @@ button:hover {
   margin-top: 10px;
   display: grid;
   gap: 10px;
+}
+
+.radius-controls {
+  display: grid;
+  gap: 6px;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 10px;
 }
 
 .slider-item {

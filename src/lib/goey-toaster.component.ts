@@ -56,14 +56,30 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
   private enterClearTimer: ReturnType<typeof setTimeout> | null = null;
   private stackResizeObserver: ResizeObserver | null = null;
   private stackRefsSub: Subscription | null = null;
+  private pointerX: number | null = null;
+  private pointerY: number | null = null;
+
+  private readonly onWindowPointerMove = (event: PointerEvent) => {
+    this.pointerX = event.clientX;
+    this.pointerY = event.clientY;
+    this.recomputeStackHovered();
+  };
+
+  private readonly onWindowPointerReset = () => {
+    this.pointerX = null;
+    this.pointerY = null;
+    this.stackHovered.set(false);
+  };
 
   constructor() {
     effect(() => {
       const nextHeadId = this.toasts()[0]?.id ?? null;
+      this.recomputeStackHovered();
 
       if (!nextHeadId) {
         this.previousHeadId = null;
         this.enteringHeadId.set(null);
+        this.stackHovered.set(false);
         if (this.enterClearTimer) {
           clearTimeout(this.enterClearTimer);
           this.enterClearTimer = null;
@@ -100,7 +116,14 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
     this.watchStackItems();
     this.stackRefsSub = this.stackItemRefs.changes.subscribe(() => {
       this.watchStackItems();
+      this.recomputeStackHovered();
     });
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('pointermove', this.onWindowPointerMove, { passive: true });
+      window.addEventListener('pointerleave', this.onWindowPointerReset);
+      window.addEventListener('blur', this.onWindowPointerReset);
+    }
   }
 
   ngOnDestroy(): void {
@@ -114,6 +137,12 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
 
     this.stackRefsSub?.unsubscribe();
     this.stackRefsSub = null;
+
+    if (typeof window !== 'undefined') {
+      window.removeEventListener('pointermove', this.onWindowPointerMove);
+      window.removeEventListener('pointerleave', this.onWindowPointerReset);
+      window.removeEventListener('blur', this.onWindowPointerReset);
+    }
   }
 
   offsetStyle(): string {
@@ -129,18 +158,8 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
     return index === 0 && this.enteringHeadId() === toastId;
   }
 
-  onStackEnter(): void {
-    this.stackHovered.set(true);
-    this.measureStackHeights();
-  }
-
-  onStackLeave(event: MouseEvent): void {
-    const relatedTarget = event.relatedTarget as Element | null;
-    if (relatedTarget && relatedTarget.closest('.goey-toaster')) {
-      return;
-    }
-
-    this.stackHovered.set(false);
+  stackHoverActive(): boolean {
+    return this.stackHovered();
   }
 
   stackItemTransform(index: number): string {
@@ -150,7 +169,7 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
     const expandedGap = Math.max(6, this.gap);
     let distance = index * collapsedStep;
 
-    if (this.stackHovered()) {
+    if (this.stackHoverActive()) {
       const heights = this.stackHeights();
       distance = 0;
       for (let i = 0; i < index; i += 1) {
@@ -198,6 +217,7 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
 
     this.stackResizeObserver = new ResizeObserver(() => {
       this.measureStackHeights();
+      this.recomputeStackHovered();
     });
 
     this.stackItemRefs.forEach((itemRef) => {
@@ -219,5 +239,51 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
       )
     );
     this.stackHeights.set(heights);
+  }
+
+  private recomputeStackHovered(): void {
+    if (this.pointerX === null || this.pointerY === null) {
+      this.stackHovered.set(false);
+      return;
+    }
+
+    const bounds = this.stackBounds();
+    if (!bounds) {
+      this.stackHovered.set(false);
+      return;
+    }
+
+    const pad = 14;
+    const hovered =
+      this.pointerX >= bounds.left - pad &&
+      this.pointerX <= bounds.right + pad &&
+      this.pointerY >= bounds.top - pad &&
+      this.pointerY <= bounds.bottom + pad;
+    this.stackHovered.set(hovered);
+  }
+
+  private stackBounds(): DOMRect | null {
+    if (!this.stackItemRefs || this.stackItemRefs.length === 0) {
+      return null;
+    }
+
+    let left = Number.POSITIVE_INFINITY;
+    let top = Number.POSITIVE_INFINITY;
+    let right = Number.NEGATIVE_INFINITY;
+    let bottom = Number.NEGATIVE_INFINITY;
+
+    for (const itemRef of this.stackItemRefs.toArray()) {
+      const rect = itemRef.nativeElement.getBoundingClientRect();
+      left = Math.min(left, rect.left);
+      top = Math.min(top, rect.top);
+      right = Math.max(right, rect.right);
+      bottom = Math.max(bottom, rect.bottom);
+    }
+
+    if (!Number.isFinite(left) || !Number.isFinite(top) || !Number.isFinite(right) || !Number.isFinite(bottom)) {
+      return null;
+    }
+
+    return new DOMRect(left, top, Math.max(0, right - left), Math.max(0, bottom - top));
   }
 }

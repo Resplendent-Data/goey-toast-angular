@@ -20,11 +20,13 @@
       [style.z-index]="count - i"
       [style.transform]="stackItemTransform(i)"
       [class.goey-stackItemEntering]="isEnteringToast(toast.id, i)"
-      (mouseenter)="onStackEnter()"
-      (mouseleave)="onStackLeave($event)"
     >
       <div class="goey-stackItemInner">
-        <goey-toast-item [toast]="toast" [position]="position"></goey-toast-item>
+        <goey-toast-item
+          [toast]="toast"
+          [position]="position"
+          [stackHovered]="stackHoverActive()"
+        ></goey-toast-item>
       </div>
     </div>
   }

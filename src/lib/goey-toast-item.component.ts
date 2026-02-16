@@ -23,6 +23,11 @@ interface GoeyToastDimensions {
   totalHeight: number;
 }
 
+interface GoeyMorphRadii {
+  pill: number;
+  body: number;
+}
+
 const EXPAND_DELAY_MS = 330;
 const COLLAPSE_DURATION_MS = 900;
 const EXPAND_SPRING_DURATION_MS = 900;
@@ -30,6 +35,10 @@ const EXPAND_EASE_DURATION_MS = 600;
 const REDUCED_MOTION_COLLAPSE_MS = 10;
 const COLLAPSE_HOLD_BEFORE_DISMISS_MS = 800;
 const ACTION_SUCCESS_DISMISS_MS = 1200;
+const DEFAULT_MORPH_RADII: GoeyMorphRadii = {
+  pill: TOAST_PILL_HEIGHT / 2,
+  body: 16,
+};
 
 @Component({
   selector: 'goey-toast-item',
@@ -41,6 +50,7 @@ const ACTION_SUCCESS_DISMISS_MS = 1200;
 export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestroy {
   @Input({ required: true }) toast!: GoeyToastItem;
   @Input({ required: true }) position: GoeyToastPosition = 'bottom-right';
+  @Input() stackHovered = false;
 
   @ViewChild('wrapper', { static: true }) private readonly wrapperRef!: ElementRef<HTMLDivElement>;
   @ViewChild('svg', { static: true }) private readonly svgRef!: ElementRef<SVGSVGElement>;
@@ -72,6 +82,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
   private morphProgress = 0;
   private viewReady = false;
+  private localHovering = false;
   private hovering = false;
   private preDismissing = false;
   private removed = false;
@@ -94,6 +105,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     this.viewReady = true;
     this.syncFromToast();
     this.previousType = this.toast.type;
+    this.syncHoverState();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -109,6 +121,10 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
 
     this.syncFromToast();
+
+    if (changes['stackHovered']) {
+      this.syncHoverState();
+    }
   }
 
   ngOnDestroy(): void {
@@ -146,7 +162,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   iconClass(): string {
-    return joinClasses('goey-iconWrapper', this.toast.classNames?.icon);
+    return joinClasses('goey-iconWrapper', this.titleToneClass(), this.toast.classNames?.icon);
   }
 
   descriptionClass(): string {
@@ -193,37 +209,52 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     return this.toast.action;
   }
 
-  iconColorClass(): string {
-    return this.titleToneClass();
+  titleColorStyle(): string | null {
+    return this.typeToneColor();
+  }
+
+  iconColorStyle(): string | null {
+    return this.typeToneColor();
+  }
+
+  actionTextColorStyle(): string | null {
+    return this.typeToneColor();
+  }
+
+  actionBackgroundStyle(): string | null {
+    const tone = this.typeToneColor();
+    if (!tone) {
+      return null;
+    }
+
+    return `color-mix(in srgb, ${tone} 22%, transparent)`;
+  }
+
+  actionBorderRadiusStyle(): string | null {
+    const radius = this.toast.radius?.action;
+    if (typeof radius === 'undefined') {
+      return null;
+    }
+
+    if (typeof radius === 'number') {
+      return `${clamp(radius, 0, 999)}px`;
+    }
+
+    return radius;
   }
 
   onMouseEnter(): void {
-    this.hovering = true;
-
-    if (this.preDismissTimer) {
-      clearTimeout(this.preDismissTimer);
-      this.preDismissTimer = null;
-
-      const elapsed = Date.now() - this.dismissTimerStartTs;
-      this.remainingDismissMs = Math.max(0, this.dismissTimerArmedMs - elapsed);
+    if (!this.localHovering) {
+      this.localHovering = true;
     }
-
-    if (this.preDismissing && this.canExpandBody()) {
-      this.cancelPreDismissAndReExpand();
-    }
+    this.syncHoverState();
   }
 
   onMouseLeave(): void {
-    this.hovering = false;
-
-    if (this.preDismissing && this.morphProgress <= 0.001) {
-      this.scheduleFinalDismiss();
-      return;
+    if (this.localHovering) {
+      this.localHovering = false;
     }
-
-    if (this.canManageExpandedDismiss()) {
-      this.startPreDismissTimer();
-    }
+    this.syncHoverState();
   }
 
   runAction(action: GoeyToastAction): void {
@@ -284,6 +315,40 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
   }
 
+  private syncHoverState(): void {
+    const nextHovering = this.isHoveringActive();
+    if (nextHovering === this.hovering) {
+      return;
+    }
+
+    this.hovering = nextHovering;
+
+    if (this.hovering) {
+      if (this.preDismissTimer) {
+        clearTimeout(this.preDismissTimer);
+        this.preDismissTimer = null;
+
+        const elapsed = Date.now() - this.dismissTimerStartTs;
+        this.remainingDismissMs = Math.max(0, this.dismissTimerArmedMs - elapsed);
+      }
+
+      if (this.preDismissing && this.canExpandBody()) {
+        this.cancelPreDismissAndReExpand();
+      }
+
+      return;
+    }
+
+    if (this.preDismissing && this.morphProgress <= 0.001) {
+      this.scheduleFinalDismiss();
+      return;
+    }
+
+    if (this.canManageExpandedDismiss()) {
+      this.startPreDismissTimer();
+    }
+  }
+
   private expandIntoBlob(): void {
     this.stopExpandedLifecycleTimers();
     this.preDismissing = false;
@@ -307,7 +372,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   private startPreDismissTimer(): void {
-    if (!this.canManageExpandedDismiss() || this.hovering || this.preDismissing) {
+    if (!this.canManageExpandedDismiss() || this.isHoveringActive() || this.preDismissing) {
       return;
     }
 
@@ -334,11 +399,20 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
     this.preDismissTimer = setTimeout(() => {
       this.preDismissTimer = null;
+
+      if (this.isHoveringActive()) {
+        return;
+      }
+
       this.startPreDismissCollapse();
     }, delay);
   }
 
   private startPreDismissCollapse(): void {
+    if (this.isHoveringActive()) {
+      return;
+    }
+
     if (this.preDismissing || this.toast.state !== 'open') {
       return;
     }
@@ -347,7 +421,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     this.bodyVisible.set(false);
 
     this.collapseToPill(() => {
-      if (this.hovering) {
+      if (this.isHoveringActive()) {
         return;
       }
 
@@ -391,7 +465,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
 
     this.dismissAfterCollapseTimer = setTimeout(() => {
-      if (!this.hovering) {
+      if (!this.isHoveringActive()) {
         this.dismissToast();
       }
     }, COLLAPSE_HOLD_BEFORE_DISMISS_MS);
@@ -512,6 +586,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const centerWidth = Math.max(expandedBodyWidth, collapsedPillWidth);
     const maxWidth = this.isCenter() ? centerWidth : Math.max(expandedBodyWidth, collapsedPillWidth);
     const maxHeight = Math.max(expandedHeight, TOAST_PILL_HEIGHT);
+    const radii = this.resolveMorphRadii();
 
     const svgEl = this.svgRef.nativeElement;
     svgEl.setAttribute('width', `${maxWidth}`);
@@ -519,8 +594,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     svgEl.setAttribute('viewBox', `0 0 ${maxWidth} ${maxHeight}`);
 
     const path = this.isCenter()
-      ? morphPathCenter(collapsedPillWidth, centerWidth, expandedHeight, t)
-      : morphPath(collapsedPillWidth, expandedBodyWidth, expandedHeight, t);
+      ? morphPathCenter(collapsedPillWidth, centerWidth, expandedHeight, t, radii)
+      : morphPath(collapsedPillWidth, expandedBodyWidth, expandedHeight, t, radii);
     this.pathRef.nativeElement.setAttribute('d', path);
 
     const wrapperEl = this.wrapperRef.nativeElement;
@@ -672,6 +747,25 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     return this.position.endsWith('center');
   }
 
+  private isHoveringActive(): boolean {
+    return this.localHovering || this.stackHovered;
+  }
+
+  private typeToneColor(): string | null {
+    const color = this.toast.typeColors?.[this.currentType()];
+    return color?.trim() ? color : null;
+  }
+
+  private resolveMorphRadii(): GoeyMorphRadii {
+    const pill = finiteNumber(this.toast.radius?.pill, DEFAULT_MORPH_RADII.pill);
+    const body = finiteNumber(this.toast.radius?.body, DEFAULT_MORPH_RADII.body);
+
+    return {
+      pill: clamp(pill, 0, TOAST_PILL_HEIGHT / 2),
+      body: clamp(body, 0, 32),
+    };
+  }
+
   private titleToneClass(): string {
     switch (this.currentType()) {
       case 'success':
@@ -711,6 +805,10 @@ function toNumber(value: string): number {
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
+function finiteNumber(value: number | undefined, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
 function joinClasses(...values: Array<string | null | undefined>): string {
   return values.filter((value): value is string => Boolean(value)).join(' ');
 }
@@ -742,12 +840,28 @@ function springEasing(progress: number, opening: boolean, bounce: number): numbe
   return clamp(value, 0, opening ? 1.05 : 1.02);
 }
 
-export function morphPath(pillWidth: number, bodyWidth: number, totalHeight: number, progress: number): string {
-  const radius = TOAST_PILL_HEIGHT / 2;
+export function morphPath(
+  pillWidth: number,
+  bodyWidth: number,
+  totalHeight: number,
+  progress: number,
+  radii: GoeyMorphRadii = DEFAULT_MORPH_RADII
+): string {
   const safePillWidth = Math.min(pillWidth, bodyWidth);
+  const radius = Math.min(clamp(radii.pill, 0, TOAST_PILL_HEIGHT / 2), safePillWidth / 2);
   const bodyHeight = TOAST_PILL_HEIGHT + (totalHeight - TOAST_PILL_HEIGHT) * progress;
 
   if (progress <= 0 || bodyHeight - TOAST_PILL_HEIGHT < 8) {
+    if (radius <= 0) {
+      return [
+        'M 0,0',
+        `H ${safePillWidth}`,
+        `V ${TOAST_PILL_HEIGHT}`,
+        'H 0',
+        'Z',
+      ].join(' ');
+    }
+
     return [
       `M 0,${radius}`,
       `A ${radius},${radius} 0 0 1 ${radius},0`,
@@ -761,16 +875,41 @@ export function morphPath(pillWidth: number, bodyWidth: number, totalHeight: num
   }
 
   const curve = 14 * progress;
-  const cornerRadius = Math.min(16, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45);
   const bodyWidthInterpolated = safePillWidth + (bodyWidth - safePillWidth) * progress;
+  const configuredBodyRadius = clamp(radii.body, 0, 32);
+  const cornerRadius = Math.max(
+    0,
+    Math.min(configuredBodyRadius, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45, bodyWidthInterpolated / 2)
+  );
   const bodyTop = TOAST_PILL_HEIGHT - curve;
   const qEndX = Math.min(safePillWidth + curve, bodyWidthInterpolated - cornerRadius);
 
+  const pillTopCommands = radius > 0
+    ? [
+      `M 0,${radius}`,
+      `A ${radius},${radius} 0 0 1 ${radius},0`,
+      `H ${safePillWidth - radius}`,
+      `A ${radius},${radius} 0 0 1 ${safePillWidth},${radius}`,
+    ]
+    : [
+      'M 0,0',
+      `H ${safePillWidth}`,
+    ];
+
+  if (cornerRadius <= 0) {
+    return [
+      ...pillTopCommands,
+      `L ${safePillWidth},${bodyTop}`,
+      `Q ${safePillWidth},${bodyTop + curve} ${qEndX},${bodyTop + curve}`,
+      `H ${bodyWidthInterpolated}`,
+      `L ${bodyWidthInterpolated},${bodyHeight}`,
+      'H 0',
+      'Z',
+    ].join(' ');
+  }
+
   return [
-    `M 0,${radius}`,
-    `A ${radius},${radius} 0 0 1 ${radius},0`,
-    `H ${safePillWidth - radius}`,
-    `A ${radius},${radius} 0 0 1 ${safePillWidth},${radius}`,
+    ...pillTopCommands,
     `L ${safePillWidth},${bodyTop}`,
     `Q ${safePillWidth},${bodyTop + curve} ${qEndX},${bodyTop + curve}`,
     `H ${bodyWidthInterpolated - cornerRadius}`,
@@ -783,12 +922,28 @@ export function morphPath(pillWidth: number, bodyWidth: number, totalHeight: num
   ].join(' ');
 }
 
-export function morphPathCenter(pillWidth: number, bodyWidth: number, totalHeight: number, progress: number): string {
-  const radius = TOAST_PILL_HEIGHT / 2;
+export function morphPathCenter(
+  pillWidth: number,
+  bodyWidth: number,
+  totalHeight: number,
+  progress: number,
+  radii: GoeyMorphRadii = DEFAULT_MORPH_RADII
+): string {
   const safePillWidth = Math.min(pillWidth, bodyWidth);
+  const radius = Math.min(clamp(radii.pill, 0, TOAST_PILL_HEIGHT / 2), safePillWidth / 2);
   const pillOffset = (bodyWidth - safePillWidth) / 2;
 
   if (progress <= 0 || (totalHeight - TOAST_PILL_HEIGHT) * progress < 8) {
+    if (radius <= 0) {
+      return [
+        `M ${pillOffset},0`,
+        `H ${pillOffset + safePillWidth}`,
+        `V ${TOAST_PILL_HEIGHT}`,
+        `H ${pillOffset}`,
+        'Z',
+      ].join(' ');
+    }
+
     return [
       `M ${pillOffset},${radius}`,
       `A ${radius},${radius} 0 0 1 ${pillOffset + radius},0`,
@@ -803,20 +958,49 @@ export function morphPathCenter(pillWidth: number, bodyWidth: number, totalHeigh
 
   const bodyHeight = TOAST_PILL_HEIGHT + (totalHeight - TOAST_PILL_HEIGHT) * progress;
   const curve = 14 * progress;
-  const cornerRadius = Math.min(16, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45);
+  const bodyWidthInterpolated = safePillWidth + (bodyWidth - safePillWidth) * progress;
+  const configuredBodyRadius = clamp(radii.body, 0, 32);
+  const cornerRadius = Math.max(
+    0,
+    Math.min(configuredBodyRadius, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45, bodyWidthInterpolated / 2)
+  );
   const bodyTop = TOAST_PILL_HEIGHT - curve;
   const bodyCenter = bodyWidth / 2;
-  const halfWidth = safePillWidth / 2 + ((bodyWidth - safePillWidth) / 2) * progress;
+  const halfWidth = bodyWidthInterpolated / 2;
   const bodyLeft = bodyCenter - halfWidth;
   const bodyRight = bodyCenter + halfWidth;
   const qLeftX = Math.max(bodyLeft + cornerRadius, pillOffset - curve);
   const qRightX = Math.min(bodyRight - cornerRadius, pillOffset + safePillWidth + curve);
 
+  const pillTopCommands = radius > 0
+    ? [
+      `M ${pillOffset},${radius}`,
+      `A ${radius},${radius} 0 0 1 ${pillOffset + radius},0`,
+      `H ${pillOffset + safePillWidth - radius}`,
+      `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth},${radius}`,
+    ]
+    : [
+      `M ${pillOffset},0`,
+      `H ${pillOffset + safePillWidth}`,
+    ];
+
+  if (cornerRadius <= 0) {
+    return [
+      ...pillTopCommands,
+      `L ${pillOffset + safePillWidth},${bodyTop}`,
+      `Q ${pillOffset + safePillWidth},${bodyTop + curve} ${qRightX},${bodyTop + curve}`,
+      `H ${bodyRight}`,
+      `L ${bodyRight},${bodyHeight}`,
+      `H ${bodyLeft}`,
+      `L ${bodyLeft},${bodyTop + curve}`,
+      `H ${qLeftX}`,
+      `Q ${pillOffset},${bodyTop + curve} ${pillOffset},${bodyTop}`,
+      'Z',
+    ].join(' ');
+  }
+
   return [
-    `M ${pillOffset},${radius}`,
-    `A ${radius},${radius} 0 0 1 ${pillOffset + radius},0`,
-    `H ${pillOffset + safePillWidth - radius}`,
-    `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth},${radius}`,
+    ...pillTopCommands,
     `L ${pillOffset + safePillWidth},${bodyTop}`,
     `Q ${pillOffset + safePillWidth},${bodyTop + curve} ${qRightX},${bodyTop + curve}`,
     `H ${bodyRight - cornerRadius}`,

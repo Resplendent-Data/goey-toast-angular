@@ -219,6 +219,29 @@
                 </div>
               </div>
 
+              <div class="type-color-grid">
+                @for (toneType of toneTypes; track toneType) {
+                  <div class="color-row">
+                    <span class="color-row-label">{{ toneType }} tone</span>
+                    <div class="color-picker-group">
+                      <input
+                        type="color"
+                        class="color-input"
+                        [value]="builderToneColor(toneType)"
+                        [attr.aria-label]="'Select ' + toneType + ' color'"
+                        (input)="setBuilderTypeColor(toneType, $any($event.target).value)"
+                      />
+                      <input
+                        class="builder-input color-hex"
+                        [value]="builderToneColor(toneType)"
+                        [attr.aria-label]="'Type ' + toneType + ' hex color'"
+                        (input)="setBuilderTypeColor(toneType, $any($event.target).value)"
+                      />
+                    </div>
+                  </div>
+                }
+              </div>
+
               <div class="border-section">
                 <div class="toggle-row">
                   <span class="toggle-row-label">Border</span>
@@ -261,6 +284,56 @@
                     </div>
                   </div>
                 }
+              </div>
+
+              <div class="radius-controls">
+                <div class="slider-item">
+                  <div class="slider-item-header">
+                    <span class="slider-item-label">Pill Radius</span>
+                    <span class="slider-item-value">{{ builderPillRadius() }}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    min="0"
+                    max="17"
+                    step="1"
+                    [value]="builderPillRadius()"
+                    (input)="setBuilderPillRadius($any($event.target).value)"
+                  />
+                </div>
+
+                <div class="slider-item">
+                  <div class="slider-item-header">
+                    <span class="slider-item-label">Body Radius</span>
+                    <span class="slider-item-value">{{ builderBodyRadius() }}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    min="0"
+                    max="32"
+                    step="1"
+                    [value]="builderBodyRadius()"
+                    (input)="setBuilderBodyRadius($any($event.target).value)"
+                  />
+                </div>
+
+                <div class="slider-item">
+                  <div class="slider-item-header">
+                    <span class="slider-item-label">Action Radius</span>
+                    <span class="slider-item-value">{{ builderActionRadius() }}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    min="0"
+                    max="999"
+                    step="1"
+                    [value]="builderActionRadius()"
+                    (input)="setBuilderActionRadius($any($event.target).value)"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -378,6 +451,10 @@ toast.success('Saved!', {{ '{' }}
               <tr><td>fillColor</td><td>string</td><td>Custom blob background color.</td></tr>
               <tr><td>borderColor</td><td>string</td><td>Custom border color.</td></tr>
               <tr><td>borderWidth</td><td>number</td><td>Border width in px.</td></tr>
+              <tr><td>typeColors</td><td>Partial&lt;Record&lt;GoeyToastType, string&gt;&gt;</td><td>Override tone colors per toast type.</td></tr>
+              <tr><td>radius.pill</td><td>number</td><td>Collapsed pill corner radius in px.</td></tr>
+              <tr><td>radius.body</td><td>number</td><td>Expanded body corner radius in px.</td></tr>
+              <tr><td>radius.action</td><td>number | string</td><td>Action button border radius.</td></tr>
               <tr><td>spring</td><td>boolean</td><td>Enable spring-style morphing and squish.</td></tr>
               <tr><td>bounce</td><td>number</td><td>Spring intensity (0.05 to 0.8).</td></tr>
             </tbody>

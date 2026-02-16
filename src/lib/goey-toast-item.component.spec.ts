@@ -57,6 +57,21 @@ describe('morphPath', () => {
     expect(hasHorizontalTo(path, 103)).toBe(true);
     expect(path).not.toMatch(/\bQ\b/);
   });
+
+  it('supports configurable pill radius', () => {
+    const path = morphPath(100, 300, 120, 0, { pill: 10, body: 8 });
+    const [moveX, moveY] = commandPair(path, 'M');
+
+    expect(moveX).toBeCloseTo(0, 3);
+    expect(moveY).toBeCloseTo(10, 3);
+  });
+
+  it('supports square pill corners at radius 0', () => {
+    const path = morphPath(100, 300, 120, 0, { pill: 0, body: 0 });
+
+    expect(path).toMatch(/\bM\s*0,\s*0\b/);
+    expect(path).not.toMatch(/\bA\b/);
+  });
 });
 
 describe('morphPathCenter', () => {

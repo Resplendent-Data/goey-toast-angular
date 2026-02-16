@@ -71,6 +71,13 @@ Or add the same two paths to the consumer app's `angular.json` `styles` array.
 - `setDefaults({ duration, spring, bounce, ... })`
 - `promise(promise, { loading, success, error }, options?)`
 
+Common `GoeyToastOptions` fields include:
+
+- `fillColor`, `borderColor`, `borderWidth`
+- `typeColors` (`Partial<Record<GoeyToastType, string>>`) for per-type tone overrides
+- `radius` (`{ pill?: number; body?: number; action?: number | string }`)
+- `timing.displayDuration`, `spring`, `bounce`
+
 ### `GoeyToasterComponent`
 
 ```html

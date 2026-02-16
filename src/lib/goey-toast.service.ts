@@ -1,6 +1,14 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GoeyPromiseData, GoeyToastItem, GoeyToastOptions, GoeyToastType, GoeyToasterDefaults } from './goey-toast.types';
+import {
+  GoeyPromiseData,
+  GoeyToastItem,
+  GoeyToastOptions,
+  GoeyToastRadius,
+  GoeyToastType,
+  GoeyToastTypeColors,
+  GoeyToasterDefaults,
+} from './goey-toast.types';
 
 @Injectable({ providedIn: 'root' })
 export class GoeyToastService {
@@ -17,7 +25,12 @@ export class GoeyToastService {
   };
 
   setDefaults(defaults: Partial<GoeyToasterDefaults>) {
-    this.defaults = { ...this.defaults, ...defaults };
+    this.defaults = {
+      ...this.defaults,
+      ...defaults,
+      typeColors: this.mergeTypeColors(this.defaults.typeColors, defaults.typeColors),
+      radius: this.mergeRadius(this.defaults.radius, defaults.radius),
+    };
   }
 
   show(title: string, options: GoeyToastOptions = {}, type: GoeyToastType = 'default'): string {
@@ -33,6 +46,8 @@ export class GoeyToastService {
       fillColor: options.fillColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
+      typeColors: this.resolveTypeColors(options.typeColors),
+      radius: this.resolveRadius(options.radius),
       timing: options.timing,
       spring: options.spring ?? this.defaults.spring,
       bounce: options.bounce ?? this.defaults.bounce,
@@ -103,6 +118,9 @@ export class GoeyToastService {
   }
 
   async promise<T>(promise: Promise<T>, data: GoeyPromiseData<T>, options?: GoeyToastOptions): Promise<T> {
+    const promiseTypeColors = this.mergeTypeColors(options?.typeColors, data.typeColors);
+    const promiseRadius = this.mergeRadius(options?.radius, data.radius);
+
     const id = this.loading(data.loading, {
       ...options,
       description: this.resolveMaybeMessage(data.description?.loading),
@@ -110,6 +128,8 @@ export class GoeyToastService {
       fillColor: data.fillColor ?? options?.fillColor,
       borderColor: data.borderColor ?? options?.borderColor,
       borderWidth: data.borderWidth ?? options?.borderWidth,
+      typeColors: promiseTypeColors,
+      radius: promiseRadius,
       timing: data.timing ?? options?.timing,
       spring: data.spring ?? options?.spring,
       bounce: data.bounce ?? options?.bounce,
@@ -128,6 +148,8 @@ export class GoeyToastService {
         fillColor: data.fillColor ?? options?.fillColor,
         borderColor: data.borderColor ?? options?.borderColor,
         borderWidth: data.borderWidth ?? options?.borderWidth,
+        typeColors: this.resolveTypeColors(promiseTypeColors),
+        radius: this.resolveRadius(promiseRadius),
         timing: data.timing ?? options?.timing,
         spring: data.spring ?? options?.spring ?? this.defaults.spring,
         bounce: data.bounce ?? options?.bounce ?? this.defaults.bounce,
@@ -146,6 +168,8 @@ export class GoeyToastService {
         fillColor: data.fillColor ?? options?.fillColor,
         borderColor: data.borderColor ?? options?.borderColor,
         borderWidth: data.borderWidth ?? options?.borderWidth,
+        typeColors: this.resolveTypeColors(promiseTypeColors),
+        radius: this.resolveRadius(promiseRadius),
         timing: data.timing ?? options?.timing,
         spring: data.spring ?? options?.spring ?? this.defaults.spring,
         bounce: data.bounce ?? options?.bounce ?? this.defaults.bounce,
@@ -217,5 +241,35 @@ export class GoeyToastService {
 
   private makeId() {
     return `goey-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  private resolveTypeColors(override?: GoeyToastTypeColors): GoeyToastTypeColors | undefined {
+    return this.mergeTypeColors(this.defaults.typeColors, override);
+  }
+
+  private resolveRadius(override?: GoeyToastRadius): GoeyToastRadius | undefined {
+    return this.mergeRadius(this.defaults.radius, override);
+  }
+
+  private mergeTypeColors(
+    base?: GoeyToastTypeColors,
+    override?: GoeyToastTypeColors
+  ): GoeyToastTypeColors | undefined {
+    const merged = {
+      ...(base ?? {}),
+      ...(override ?? {}),
+    };
+    return Object.keys(merged).length > 0 ? merged : undefined;
+  }
+
+  private mergeRadius(
+    base?: GoeyToastRadius,
+    override?: GoeyToastRadius
+  ): GoeyToastRadius | undefined {
+    const merged = {
+      ...(base ?? {}),
+      ...(override ?? {}),
+    };
+    return Object.keys(merged).length > 0 ? merged : undefined;
   }
 }

@@ -11,6 +11,13 @@ export type GoeyToastPosition =
 export type GoeyToastTheme = 'light' | 'dark';
 
 export type GoeyToastOffset = number | string;
+export type GoeyToastTypeColors = Partial<Record<GoeyToastType, string>>;
+
+export interface GoeyToastRadius {
+  pill?: number;
+  body?: number;
+  action?: GoeyToastOffset;
+}
 
 export interface GoeyToastAction {
   label: string;
@@ -42,6 +49,8 @@ export interface GoeyToastOptions {
   fillColor?: string;
   borderColor?: string;
   borderWidth?: number;
+  typeColors?: GoeyToastTypeColors;
+  radius?: GoeyToastRadius;
   timing?: GoeyToastTimings;
   spring?: boolean;
   bounce?: number; // 0.05 - 0.8
@@ -64,6 +73,8 @@ export interface GoeyToastItem extends Required<Pick<GoeyToastOptions, 'spring' 
   fillColor?: string;
   borderColor?: string;
   borderWidth?: number;
+  typeColors?: GoeyToastTypeColors;
+  radius?: GoeyToastRadius;
   timing?: GoeyToastTimings;
   state: 'open' | 'closing';
 }
@@ -85,6 +96,8 @@ export interface GoeyPromiseData<T> {
   fillColor?: string;
   borderColor?: string;
   borderWidth?: number;
+  typeColors?: GoeyToastTypeColors;
+  radius?: GoeyToastRadius;
   timing?: GoeyToastTimings;
   spring?: boolean;
   bounce?: number;
