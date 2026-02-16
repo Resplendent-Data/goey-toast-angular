@@ -17,6 +17,7 @@ import { GoeyToastService } from './goey-toast.service';
 import { GoeyToastAction, GoeyToastItem, GoeyToastPosition, GoeyToastType } from './goey-toast.types';
 import { TOAST_PILL_HEIGHT } from './goey-toast.constants';
 import { clamp } from './goey-toast.utils';
+import { GoeyToastIconComponent } from './goey-toast-icon.component';
 
 interface GoeyToastDimensions {
   pillWidth: number;
@@ -44,6 +45,7 @@ const DEFAULT_MORPH_RADII: GoeyMorphRadii = {
 @Component({
   selector: 'goey-toast-item',
   standalone: true,
+  imports: [GoeyToastIconComponent],
   templateUrl: './goey-toast-item.component.html',
   styleUrl: './goey-toast-item.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

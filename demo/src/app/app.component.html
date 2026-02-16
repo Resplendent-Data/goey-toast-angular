@@ -152,6 +152,7 @@
             <div class="builder-label">Title</div>
             <input
               class="builder-input"
+              aria-label="Title"
               [value]="builderTitle()"
               (input)="builderTitle.set($any($event.target).value)"
               placeholder="Toast title"
@@ -176,6 +177,7 @@
             @if (builderHasDescription()) {
               <textarea
                 class="builder-input builder-textarea"
+                aria-label="Description"
                 [value]="builderDescription()"
                 (input)="builderDescription.set($any($event.target).value)"
               ></textarea>
@@ -200,6 +202,7 @@
             @if (builderHasAction()) {
               <input
                 class="builder-input"
+                aria-label="Action label"
                 [value]="builderActionLabel()"
                 (input)="builderActionLabel.set($any($event.target).value)"
                 placeholder="Action label"
@@ -275,6 +278,7 @@
                       <input
                         type="range"
                         class="slider"
+                        aria-label="Border width"
                         min="0.5"
                         max="4"
                         step="0.5"
@@ -295,6 +299,7 @@
                   <input
                     type="range"
                     class="slider"
+                    aria-label="Pill radius"
                     min="0"
                     max="17"
                     step="1"
@@ -311,6 +316,7 @@
                   <input
                     type="range"
                     class="slider"
+                    aria-label="Body radius"
                     min="0"
                     max="32"
                     step="1"
@@ -327,6 +333,7 @@
                   <input
                     type="range"
                     class="slider"
+                    aria-label="Action radius"
                     min="0"
                     max="999"
                     step="1"
@@ -348,6 +355,7 @@
               <input
                 type="range"
                 class="slider"
+                aria-label="Display duration"
                 min="1000"
                 max="20000"
                 step="500"
@@ -382,6 +390,7 @@
                 <input
                   type="range"
                   class="slider"
+                  aria-label="Bounce"
                   min="0.05"
                   max="0.8"
                   step="0.05"

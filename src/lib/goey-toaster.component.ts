@@ -58,14 +58,27 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
   private stackRefsSub: Subscription | null = null;
   private pointerX: number | null = null;
   private pointerY: number | null = null;
+  private hoverRecomputeRafId: number | null = null;
 
   private readonly onWindowPointerMove = (event: PointerEvent) => {
     this.pointerX = event.clientX;
     this.pointerY = event.clientY;
-    this.recomputeStackHovered();
+    if (this.hoverRecomputeRafId !== null) {
+      return;
+    }
+
+    this.hoverRecomputeRafId = requestAnimationFrame(() => {
+      this.hoverRecomputeRafId = null;
+      this.recomputeStackHovered();
+    });
   };
 
   private readonly onWindowPointerReset = () => {
+    if (this.hoverRecomputeRafId !== null) {
+      cancelAnimationFrame(this.hoverRecomputeRafId);
+      this.hoverRecomputeRafId = null;
+    }
+
     this.pointerX = null;
     this.pointerY = null;
     this.stackHovered.set(false);
@@ -137,6 +150,11 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
 
     this.stackRefsSub?.unsubscribe();
     this.stackRefsSub = null;
+
+    if (this.hoverRecomputeRafId !== null) {
+      cancelAnimationFrame(this.hoverRecomputeRafId);
+      this.hoverRecomputeRafId = null;
+    }
 
     if (typeof window !== 'undefined') {
       window.removeEventListener('pointermove', this.onWindowPointerMove);

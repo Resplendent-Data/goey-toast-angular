@@ -186,15 +186,6 @@
 .goey-actionInfo:hover { background: #90caf9; }
 .goey-actionInfo:active { background: #64b5f6; }
 
-.goey-spinnerSpin {
-  animation: goey-spin 1s linear infinite;
-}
-
-@keyframes goey-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
 @keyframes goey-final-close {
   from {
     opacity: 1;
