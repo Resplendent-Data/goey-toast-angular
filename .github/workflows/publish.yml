@@ -3,13 +3,13 @@ name: Publish npm
 on:
   workflow_dispatch:
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      id-token: write
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -30,6 +30,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Verify OIDC is available
+        run: |
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
+          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
 
       - name: Publish (Trusted Publishing / OIDC)
         env:
