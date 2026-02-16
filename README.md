@@ -105,8 +105,9 @@ Typical flow:
 
 ## Live examples
 
-- Example source: `examples/standalone-app/`
-- Quick playground base (StackBlitz): <https://stackblitz.com/edit/angular-ivy>
+- Hosted demo (GitHub Pages): <https://resplendent-data.github.io/goey-toast-angular/>
+- Demo source app: `demo/`
+- Example snippet source: `examples/standalone-app/`
 
 ## Publishing to npm
 
