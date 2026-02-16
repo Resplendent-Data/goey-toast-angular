@@ -8,65 +8,12 @@ on:
 permissions:
   contents: write
   pull-requests: write
-  id-token: write
 
 jobs:
   release-please:
     runs-on: ubuntu-latest
-    outputs:
-      release_created: ${{ steps.release.outputs.release_created }}
     steps:
-      - id: release
-        uses: googleapis/release-please-action@v4
+      - uses: googleapis/release-please-action@v4
         with:
           release-type: node
-          package-name: goey-toast-angular
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  publish:
-    name: Publish npm
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
-          cache: npm
-          token: ''
-
-      - name: Upgrade npm for Trusted Publishing
-        run: |
-          npm install -g npm@11
-          npm --version
-
-      - name: Install
-        run: npm ci
-
-      - name: Test
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Verify OIDC is available
-        run: |
-          test -n "${ACTIONS_ID_TOKEN_REQUEST_URL:-}"
-          test -n "${ACTIONS_ID_TOKEN_REQUEST_TOKEN:-}"
-
-      - name: Publish with npm token fallback
-        if: ${{ secrets.NPM_TOKEN != '' }}
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: npm publish --access public
-
-      - name: Publish (Trusted Publishing / OIDC)
-        if: ${{ secrets.NPM_TOKEN == '' }}
-        env:
-          NODE_AUTH_TOKEN: ''
-        run: npm publish --provenance --access public
