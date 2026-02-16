@@ -106,7 +106,7 @@ Typical flow:
 ## Live examples
 
 - Example source: `examples/standalone-app/`
-- Quick playground base (StackBlitz): <https://stackblitz.com/edit/angular-standalone-template>
+- Quick playground base (StackBlitz): <https://stackblitz.com/edit/angular-ivy>
 
 ## Publishing to npm
 
