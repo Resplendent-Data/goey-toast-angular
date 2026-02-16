@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 import { GoeyToasterComponent, GoeyToastService } from 'goey-toast-angular';
 
 @Component({
@@ -9,7 +9,7 @@ import { GoeyToasterComponent, GoeyToastService } from 'goey-toast-angular';
   styleUrl: './app.component.css',
 })
 export class AppComponent {
-  private readonly toast = inject(GoeyToastService);
+  constructor(private readonly toast: GoeyToastService) {}
 
   basic() {
     this.toast.show('Hello from goey-toast-angular', {

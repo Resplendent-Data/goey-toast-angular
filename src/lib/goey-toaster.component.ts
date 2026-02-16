@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, inject } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Observable } from 'rxjs';
 import { GoeyToastService } from './goey-toast.service';
 import { GoeyToastItem, GoeyToastPosition } from './goey-toast.types';
@@ -14,8 +14,11 @@ import { GoeyToastItem, GoeyToastPosition } from './goey-toast.types';
 export class GoeyToasterComponent {
   @Input() position: GoeyToastPosition = 'bottom-right';
 
-  private readonly service = inject(GoeyToastService);
-  readonly toasts$: Observable<GoeyToastItem[]> = this.service.toasts$;
+  readonly toasts$: Observable<GoeyToastItem[]>;
+
+  constructor(private readonly service: GoeyToastService) {
+    this.toasts$ = this.service.toasts$;
+  }
 
   dismiss(id: string) {
     this.service.dismiss(id);
