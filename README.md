@@ -88,6 +88,21 @@ npm test
 npm run build
 ```
 
+## Release flow (automated)
+
+This repo uses:
+
+- `release-please.yml` to open/update a release PR with version + changelog
+- `publish.yml` to publish to npm when a GitHub Release is published
+
+Typical flow:
+
+1. Merge feature/fix PRs into `main`
+2. Release Please updates/opens the release PR
+3. Squash-merge the release PR
+4. GitHub Release is created
+5. npm publish runs automatically via Trusted Publishing (OIDC)
+
 ## Live examples
 
 - Example source: `examples/standalone-app/`
