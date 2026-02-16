@@ -1,12 +1,12 @@
 {
   "name": "goey-toast-angular",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Angular-native gooey toast notifications inspired by goey-toast",
   "author": "Eric (pixel narwhal)",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/malachibazar/goey-toast-angular.git"
+    "url": "git+https://github.com/Resplendent-Data/goey-toast-angular.git"
   },
   "keywords": [
     "angular",
@@ -25,12 +25,12 @@
     "@angular/compiler": "^19.2.0",
     "@angular/compiler-cli": "^19.2.0",
     "@angular/core": "^19.2.0",
+    "@vitest/coverage-v8": "^2.1.8",
     "ng-packagr": "^19.2.0",
     "rxjs": "^7.8.1",
     "tslib": "^2.6.3",
     "typescript": "^5.6.3",
-    "vitest": "^2.1.8",
-    "@vitest/coverage-v8": "^2.1.8"
+    "vitest": "^2.1.8"
   },
   "scripts": {
     "build": "ng-packagr -p ng-package.json",
@@ -40,5 +40,9 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "homepage": "https://github.com/Resplendent-Data/goey-toast-angular#readme",
+  "bugs": {
+    "url": "https://github.com/Resplendent-Data/goey-toast-angular/issues"
   }
 }
