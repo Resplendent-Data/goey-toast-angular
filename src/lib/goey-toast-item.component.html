@@ -1,0 +1,48 @@
+<div
+  #wrapper
+  [class]="wrapperClass()"
+  [attr.role]="currentType() === 'error' ? 'alert' : 'status'"
+  [attr.aria-live]="currentType() === 'error' ? 'assertive' : 'polite'"
+  aria-atomic="true"
+  (mouseenter)="onMouseEnter()"
+  (mouseleave)="onMouseLeave()"
+>
+  <svg #svg class="goey-blobSvg" aria-hidden="true">
+    <path
+      #path
+      [attr.fill]="toast.fillColor || '#ffffff'"
+      [attr.stroke]="toast.borderColor || 'none'"
+      [attr.stroke-width]="toast.borderColor ? (toast.borderWidth ?? 1.5) : 0"
+    ></path>
+  </svg>
+
+  <div #content [class]="contentClass()">
+    <div #header [class]="headerClass()">
+      <span [class]="iconClass()" [style.color]="iconColorStyle()">
+        <goey-toast-icon [type]="currentType()" />
+      </span>
+
+      <span [class]="titleClass()" [style.color]="titleColorStyle()">{{ currentTitle() }}</span>
+    </div>
+
+    @if (renderBody() && currentDescription(); as description) {
+      <div [class]="descriptionClass()">{{ description }}</div>
+    }
+
+    @if (renderBody() && currentAction(); as action) {
+      <div [class]="actionWrapperClass()">
+        <button
+          type="button"
+          [class]="actionButtonClass()"
+          [style.color]="actionTextColorStyle()"
+          [style.background]="actionBackgroundStyle()"
+          [style.border-radius]="actionBorderRadiusStyle()"
+          [attr.aria-label]="action.label"
+          (click)="runAction(action)"
+        >
+          {{ action.label }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

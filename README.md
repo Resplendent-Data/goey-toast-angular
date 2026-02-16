@@ -40,6 +40,23 @@ export class AppComponent {
 }
 ```
 
+## CSS Assets
+
+`ng-package.json` ships these style assets:
+
+- `goey-toaster.component.css`
+- `goey-toast-item.component.css`
+
+Angular should normally apply component styles automatically. If your consumer build strips or externalizes library styles, include both assets explicitly:
+
+```css
+@import 'goey-toast-angular/goey-toaster.component.css';
+@import 'goey-toast-angular/goey-toast-item.component.css';
+```
+
+Or add the same package-root paths (`goey-toast-angular/goey-toaster.component.css` and
+`goey-toast-angular/goey-toast-item.component.css`) to the consumer app's `angular.json` `styles` array.
+
 ## API
 
 ### `GoeyToastService`
@@ -54,6 +71,13 @@ export class AppComponent {
 - `update(id, patch)`
 - `setDefaults({ duration, spring, bounce, ... })`
 - `promise(promise, { loading, success, error }, options?)`
+
+Common `GoeyToastOptions` fields include:
+
+- `fillColor`, `borderColor`, `borderWidth`
+- `typeColors` (`Partial<Record<GoeyToastType, string>>`) for per-type tone overrides
+- `radius` (`{ pill?: number; body?: number; action?: number | string }`)
+- `timing.displayDuration`, `spring`, `bounce`
 
 ### `GoeyToasterComponent`
 

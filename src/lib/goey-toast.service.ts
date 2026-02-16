@@ -1,6 +1,32 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GoeyPromiseData, GoeyToastItem, GoeyToastOptions, GoeyToastType, GoeyToasterDefaults } from './goey-toast.types';
+import {
+  GoeyPromiseData,
+  GoeyToastAction,
+  GoeyToastItem,
+  GoeyToastOptions,
+  GoeyToastRadius,
+  GoeyToastType,
+  GoeyToastTypeColors,
+  GoeyToasterDefaults,
+} from './goey-toast.types';
+
+type PromiseUpdateShared = Pick<
+  GoeyPromiseData<unknown>,
+  'classNames' | 'fillColor' | 'borderColor' | 'borderWidth' | 'timing' | 'spring' | 'bounce'
+>;
+
+interface PromiseUpdateArgs<T> {
+  type: 'success' | 'error';
+  titleSource: string | ((input: T) => string);
+  descriptionSource?: string | ((input: T) => string);
+  actionSource?: GoeyToastAction;
+  input: T;
+  options?: GoeyToastOptions;
+  shared: PromiseUpdateShared;
+  promiseTypeColors?: GoeyToastTypeColors;
+  promiseRadius?: GoeyToastRadius;
+}
 
 @Injectable({ providedIn: 'root' })
 export class GoeyToastService {
@@ -17,7 +43,12 @@ export class GoeyToastService {
   };
 
   setDefaults(defaults: Partial<GoeyToasterDefaults>) {
-    this.defaults = { ...this.defaults, ...defaults };
+    this.defaults = {
+      ...this.defaults,
+      ...defaults,
+      typeColors: this.mergeTypeColors(this.defaults.typeColors, defaults.typeColors),
+      radius: this.mergeRadius(this.defaults.radius, defaults.radius),
+    };
   }
 
   show(title: string, options: GoeyToastOptions = {}, type: GoeyToastType = 'default'): string {
@@ -29,22 +60,20 @@ export class GoeyToastService {
       description: options.description,
       duration: options.duration ?? this.defaults.duration,
       action: options.action,
+      classNames: options.classNames,
       fillColor: options.fillColor,
       borderColor: options.borderColor,
       borderWidth: options.borderWidth,
+      typeColors: this.resolveTypeColors(options.typeColors),
+      radius: this.resolveRadius(options.radius),
+      timing: options.timing,
       spring: options.spring ?? this.defaults.spring,
       bounce: options.bounce ?? this.defaults.bounce,
       state: 'open',
     };
 
-    this._toasts.next([item, ...this._toasts.value]);
-
-    if (item.duration > 0 && type !== 'loading') {
-      this.timers.set(
-        id,
-        setTimeout(() => this.dismiss(id), item.duration)
-      );
-    }
+    this._toasts.next([item, ...this._toasts.value.filter((toast) => toast.id !== id)]);
+    this.armDismissTimer(item);
 
     return id;
   }
@@ -70,7 +99,21 @@ export class GoeyToastService {
   }
 
   update(id: string, patch: Partial<Omit<GoeyToastItem, 'id'>>) {
-    this._toasts.next(this._toasts.value.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+    let updatedToast: GoeyToastItem | undefined;
+    this._toasts.next(
+      this._toasts.value.map((toast) => {
+        if (toast.id !== id) {
+          return toast;
+        }
+
+        updatedToast = { ...toast, ...patch };
+        return updatedToast;
+      })
+    );
+
+    if (updatedToast) {
+      this.armDismissTimer(updatedToast);
+    }
   }
 
   dismiss(id?: string) {
@@ -93,17 +136,150 @@ export class GoeyToastService {
   }
 
   async promise<T>(promise: Promise<T>, data: GoeyPromiseData<T>, options?: GoeyToastOptions): Promise<T> {
-    const id = this.loading(data.loading, options);
+    const promiseTypeColors = this.mergeTypeColors(options?.typeColors, data.typeColors);
+    const promiseRadius = this.mergeRadius(options?.radius, data.radius);
+    const shared: PromiseUpdateShared = {
+      classNames: data.classNames,
+      fillColor: data.fillColor,
+      borderColor: data.borderColor,
+      borderWidth: data.borderWidth,
+      timing: data.timing,
+      spring: data.spring,
+      bounce: data.bounce,
+    };
+
+    const id = this.loading(data.loading, {
+      ...options,
+      description: this.resolveMaybeMessage(data.description?.loading),
+      classNames: shared.classNames ?? options?.classNames,
+      fillColor: shared.fillColor ?? options?.fillColor,
+      borderColor: shared.borderColor ?? options?.borderColor,
+      borderWidth: shared.borderWidth ?? options?.borderWidth,
+      typeColors: promiseTypeColors,
+      radius: promiseRadius,
+      timing: shared.timing ?? options?.timing,
+      spring: shared.spring ?? options?.spring,
+      bounce: shared.bounce ?? options?.bounce,
+    });
+
     try {
       const result = await promise;
-      this.dismiss(id);
-      this.success(typeof data.success === 'function' ? data.success(result) : data.success, options);
+
+      this.update(
+        id,
+        this.buildPromiseUpdate({
+          type: 'success',
+          titleSource: data.success,
+          descriptionSource: data.description?.success,
+          actionSource: data.action?.success,
+          input: result,
+          options,
+          shared,
+          promiseTypeColors,
+          promiseRadius,
+        })
+      );
+
       return result;
     } catch (err) {
-      this.dismiss(id);
-      this.error(typeof data.error === 'function' ? data.error(err) : data.error, options);
+      this.update(
+        id,
+        this.buildPromiseUpdate({
+          type: 'error',
+          titleSource: data.error,
+          descriptionSource: data.description?.error,
+          actionSource: data.action?.error,
+          input: err,
+          options,
+          shared,
+          promiseTypeColors,
+          promiseRadius,
+        })
+      );
+
       throw err;
     }
+  }
+
+  private buildPromiseUpdate<T>({
+    type,
+    titleSource,
+    descriptionSource,
+    actionSource,
+    input,
+    options,
+    shared,
+    promiseTypeColors,
+    promiseRadius,
+  }: PromiseUpdateArgs<T>): Partial<Omit<GoeyToastItem, 'id'>> {
+    return {
+      title: this.resolveMessage(titleSource, input),
+      type,
+      description: this.resolveMaybeMessage(descriptionSource, input),
+      action: actionSource,
+      duration: options?.duration ?? this.defaults.duration,
+      classNames: shared.classNames ?? options?.classNames,
+      fillColor: shared.fillColor ?? options?.fillColor,
+      borderColor: shared.borderColor ?? options?.borderColor,
+      borderWidth: shared.borderWidth ?? options?.borderWidth,
+      typeColors: this.resolveTypeColors(promiseTypeColors),
+      radius: this.resolveRadius(promiseRadius),
+      timing: shared.timing ?? options?.timing,
+      spring: shared.spring ?? options?.spring ?? this.defaults.spring,
+      bounce: shared.bounce ?? options?.bounce ?? this.defaults.bounce,
+      state: 'open',
+    };
+  }
+
+  private armDismissTimer(toast: GoeyToastItem) {
+    this.clearTimer(toast.id);
+
+    if (!this.shouldAutoDismiss(toast)) {
+      return;
+    }
+
+    this.timers.set(
+      toast.id,
+      setTimeout(() => this.dismiss(toast.id), toast.duration)
+    );
+  }
+
+  private shouldAutoDismiss(toast: GoeyToastItem) {
+    if (toast.state === 'closing') {
+      return false;
+    }
+
+    if (toast.duration <= 0 || toast.type === 'loading') {
+      return false;
+    }
+
+    const hasExpandedBody = Boolean(toast.description || toast.action);
+    return !hasExpandedBody;
+  }
+
+  private resolveMessage<T>(value: string | ((input: T) => string), input: T): string {
+    if (typeof value === 'function') {
+      return value(input);
+    }
+
+    return value;
+  }
+
+  private resolveMaybeMessage<T>(
+    value: string | ((input: T) => string) | undefined,
+    input?: T
+  ): string | undefined {
+    if (typeof value === 'undefined') {
+      return undefined;
+    }
+
+    if (typeof value === 'function') {
+      // Deliberate assertion: function-based messages are only used by callers
+      // that also provide an input payload (result/error) for interpolation.
+      return value(input as T);
+    }
+
+    return value;
   }
 
   private clearTimer(id: string) {
@@ -116,5 +292,35 @@ export class GoeyToastService {
 
   private makeId() {
     return `goey-${Math.random().toString(36).slice(2, 10)}`;
+  }
+
+  private resolveTypeColors(override?: GoeyToastTypeColors): GoeyToastTypeColors | undefined {
+    return this.mergeTypeColors(this.defaults.typeColors, override);
+  }
+
+  private resolveRadius(override?: GoeyToastRadius): GoeyToastRadius | undefined {
+    return this.mergeRadius(this.defaults.radius, override);
+  }
+
+  private mergeTypeColors(
+    base?: GoeyToastTypeColors,
+    override?: GoeyToastTypeColors
+  ): GoeyToastTypeColors | undefined {
+    const merged = {
+      ...(base ?? {}),
+      ...(override ?? {}),
+    };
+    return Object.keys(merged).length > 0 ? merged : undefined;
+  }
+
+  private mergeRadius(
+    base?: GoeyToastRadius,
+    override?: GoeyToastRadius
+  ): GoeyToastRadius | undefined {
+    const merged = {
+      ...(base ?? {}),
+      ...(override ?? {}),
+    };
+    return Object.keys(merged).length > 0 ? merged : undefined;
   }
 }

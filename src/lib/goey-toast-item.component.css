@@ -1,0 +1,286 @@
+:host {
+  display: block;
+  pointer-events: auto;
+  width: fit-content;
+}
+
+.goey-wrapper {
+  pointer-events: auto;
+  cursor: default;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  position: relative;
+  width: fit-content;
+}
+
+.goey-wrapper.goey-right {
+  margin-left: auto;
+  transform: scaleX(-1);
+}
+
+.goey-wrapper.goey-center {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.goey-wrapper.goey-finalClosing {
+  animation: goey-final-close 220ms ease forwards;
+}
+
+.goey-wrapper.goey-right.goey-finalClosing {
+  animation: goey-final-close-right 220ms ease forwards;
+}
+
+.goey-blobSvg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  pointer-events: none;
+  filter:
+    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.06))
+    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.04));
+}
+
+.goey-content {
+  position: relative;
+  z-index: 1;
+  transition: padding 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goey-contentCompact {
+  padding: 7px 10px 7px 10px;
+}
+
+.goey-contentExpanded {
+  padding: 7px 10px 16px 10px;
+  min-width: min(340px, calc(100vw - 48px));
+  max-width: 380px;
+}
+
+.goey-contentRight {
+  transform: scaleX(-1);
+  text-align: right;
+}
+
+.goey-contentCenter {
+  text-align: center;
+}
+
+.goey-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+}
+
+.goey-iconWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  line-height: 0;
+}
+
+.goey-title {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  color: inherit;
+  padding: 0 4px 0 2px;
+}
+
+.goey-titleDefault { color: #555; }
+.goey-titleSuccess { color: #4caf50; }
+.goey-titleError { color: #e53935; }
+.goey-titleWarning { color: #c49000; }
+.goey-titleInfo { color: #1e88e5; }
+.goey-titleLoading { color: #555; }
+
+.goey-description {
+  font-size: 13px;
+  font-weight: 400;
+  color: #444;
+  line-height: 1.55;
+  margin-top: 12px;
+  overflow: hidden;
+  text-align: left;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goey-actionWrapper {
+  margin-top: 12px;
+  overflow: hidden;
+  transition: opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goey-bodyVisible {
+  opacity: 1;
+}
+
+.goey-bodyHidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.goey-actionButton {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  border: none;
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: center;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s ease;
+}
+
+.goey-actionButton:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.goey-actionButton:focus-visible {
+  outline: 2px solid currentcolor;
+  outline-offset: 2px;
+}
+
+.goey-actionDefault {
+  background: #e8e8e8;
+  color: #555;
+}
+.goey-actionDefault:hover { background: #dcdcdc; }
+.goey-actionDefault:active { background: #d0d0d0; }
+
+.goey-actionSuccess {
+  background: #c8e6c9;
+  color: #4caf50;
+}
+.goey-actionSuccess:hover { background: #a5d6a7; }
+.goey-actionSuccess:active { background: #81c784; }
+
+.goey-actionError {
+  background: #ffcdd2;
+  color: #e53935;
+}
+.goey-actionError:hover { background: #ef9a9a; }
+.goey-actionError:active { background: #e57373; }
+
+.goey-actionWarning {
+  background: #ffecb3;
+  color: #c49000;
+}
+.goey-actionWarning:hover { background: #ffe082; }
+.goey-actionWarning:active { background: #ffd54f; }
+
+.goey-actionInfo {
+  background: #bbdefb;
+  color: #1e88e5;
+}
+.goey-actionInfo:hover { background: #90caf9; }
+.goey-actionInfo:active { background: #64b5f6; }
+
+@keyframes goey-final-close {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(10px) scale(0.96);
+  }
+}
+
+@keyframes goey-final-close-right {
+  from {
+    opacity: 1;
+    transform: scaleX(-1) translateY(0) scale(1);
+  }
+
+  to {
+    opacity: 0;
+    transform: scaleX(-1) translateY(10px) scale(0.96);
+  }
+}
+
+:host-context([data-goey-theme='dark']) .goey-blobSvg,
+:host-context([data-theme='dark']) .goey-blobSvg {
+  filter:
+    drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3))
+    drop-shadow(0 1px 4px rgba(0, 0, 0, 0.2));
+}
+
+:host-context([data-goey-theme='dark']) .goey-titleDefault,
+:host-context([data-theme='dark']) .goey-titleDefault { color: #ccc; }
+:host-context([data-goey-theme='dark']) .goey-titleSuccess,
+:host-context([data-theme='dark']) .goey-titleSuccess { color: #66bb6a; }
+:host-context([data-goey-theme='dark']) .goey-titleError,
+:host-context([data-theme='dark']) .goey-titleError { color: #ef5350; }
+:host-context([data-goey-theme='dark']) .goey-titleWarning,
+:host-context([data-theme='dark']) .goey-titleWarning { color: #ffb300; }
+:host-context([data-goey-theme='dark']) .goey-titleInfo,
+:host-context([data-theme='dark']) .goey-titleInfo { color: #42a5f5; }
+:host-context([data-goey-theme='dark']) .goey-titleLoading,
+:host-context([data-theme='dark']) .goey-titleLoading { color: #ccc; }
+
+:host-context([data-goey-theme='dark']) .goey-description,
+:host-context([data-theme='dark']) .goey-description {
+  color: #aaa;
+}
+
+:host-context([data-goey-theme='dark']) .goey-actionDefault,
+:host-context([data-theme='dark']) .goey-actionDefault {
+  background: #3a3a3a;
+  color: #ccc;
+}
+:host-context([data-goey-theme='dark']) .goey-actionDefault:hover,
+:host-context([data-theme='dark']) .goey-actionDefault:hover { background: #444; }
+:host-context([data-goey-theme='dark']) .goey-actionDefault:active,
+:host-context([data-theme='dark']) .goey-actionDefault:active { background: #4e4e4e; }
+
+:host-context([data-goey-theme='dark']) .goey-actionSuccess,
+:host-context([data-theme='dark']) .goey-actionSuccess {
+  background: #1b5e20;
+  color: #66bb6a;
+}
+:host-context([data-goey-theme='dark']) .goey-actionSuccess:hover,
+:host-context([data-theme='dark']) .goey-actionSuccess:hover { background: #2e7d32; }
+:host-context([data-goey-theme='dark']) .goey-actionSuccess:active,
+:host-context([data-theme='dark']) .goey-actionSuccess:active { background: #388e3c; }
+
+:host-context([data-goey-theme='dark']) .goey-actionError,
+:host-context([data-theme='dark']) .goey-actionError {
+  background: #b71c1c;
+  color: #ef5350;
+}
+:host-context([data-goey-theme='dark']) .goey-actionError:hover,
+:host-context([data-theme='dark']) .goey-actionError:hover { background: #c62828; }
+:host-context([data-goey-theme='dark']) .goey-actionError:active,
+:host-context([data-theme='dark']) .goey-actionError:active { background: #d32f2f; }
+
+:host-context([data-goey-theme='dark']) .goey-actionWarning,
+:host-context([data-theme='dark']) .goey-actionWarning {
+  background: #4a3800;
+  color: #ffb300;
+}
+:host-context([data-goey-theme='dark']) .goey-actionWarning:hover,
+:host-context([data-theme='dark']) .goey-actionWarning:hover { background: #5c4600; }
+:host-context([data-goey-theme='dark']) .goey-actionWarning:active,
+:host-context([data-theme='dark']) .goey-actionWarning:active { background: #6e5400; }
+
+:host-context([data-goey-theme='dark']) .goey-actionInfo,
+:host-context([data-theme='dark']) .goey-actionInfo {
+  background: #0d47a1;
+  color: #42a5f5;
+}
+:host-context([data-goey-theme='dark']) .goey-actionInfo:hover,
+:host-context([data-theme='dark']) .goey-actionInfo:hover { background: #1565c0; }
+:host-context([data-goey-theme='dark']) .goey-actionInfo:active,
+:host-context([data-theme='dark']) .goey-actionInfo:active { background: #1976d2; }

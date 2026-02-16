@@ -1,15 +1,475 @@
-<goey-toaster position="bottom-right"></goey-toaster>
+<goey-toaster [position]="builderPosition()"></goey-toaster>
 
-<main class="container">
-  <h1>goey-toast-angular demo</h1>
-  <p>Angular-native gooey toast notifications.</p>
+<div class="page" id="top">
+  <header class="site-header">
+    <div class="header-inner">
+      <a class="header-logo" href="#top" (click)="$event.preventDefault(); scrollTo('top')">
+        goey-toast-angular
+        <img src="mascot.png" alt="goey mascot" class="header-mascot" />
+      </a>
 
-  <div class="grid">
-    <button (click)="basic()">Default</button>
-    <button (click)="success()">Success</button>
-    <button (click)="error()">Error + Action</button>
-    <button (click)="warning()">Warning</button>
-    <button (click)="info()">Info</button>
-    <button (click)="promiseDemo()">Promise Toast</button>
-  </div>
-</main>
+      <nav class="header-nav">
+        <button class="nav-link" type="button" (click)="scrollTo('examples')">Examples</button>
+        <button class="nav-link" type="button" (click)="scrollTo('builder')">Builder</button>
+        <button class="nav-link" type="button" (click)="scrollTo('docs')">Docs</button>
+      </nav>
+
+      <div class="header-icons">
+        <a href="https://github.com/anl331/goey-toast" target="_blank" rel="noopener noreferrer" class="header-icon-link" aria-label="Original repository">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+          </svg>
+        </a>
+
+        <a href="https://www.npmjs.com/package/goey-toast-angular" target="_blank" rel="noopener noreferrer" class="header-icon-link" aria-label="npm package">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M1.763 0C.786 0 0 .786 0 1.763v20.474C0 23.214.786 24 1.763 24h20.474c.977 0 1.763-.786 1.763-1.763V1.763C24 .786 23.214 0 22.237 0zM5.13 5.323l13.837.019-.009 13.836h-3.464l.01-10.382h-3.456L12.04 19.17H5.113z" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-badge">
+        <span></span>
+        Angular Port
+      </div>
+
+      <h1 class="hero-title">
+        goey-toast-angular
+        <img src="mascot.png" alt="goey mascot" class="hero-mascot" />
+      </h1>
+
+      <p class="hero-description">
+        Morphing, gooey toast notifications inspired by the original React library,
+        rebuilt for modern Angular standalone apps.
+      </p>
+
+      <div class="hero-install">
+        <div class="install-wrapper">
+          <code><span class="prompt">$</span> npm install goey-toast-angular</code>
+          <button type="button" class="copy-btn" (click)="copyInstallCommand()">
+            {{ installCopied() ? 'Copied!' : 'Copy' }}
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="two-col" id="examples">
+      <aside class="examples">
+        <div class="examples-header">
+          <h2>Examples</h2>
+          <span>Click to preview</span>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Toast Types</div>
+          <div class="buttons">
+            <button type="button" (click)="toastDefault()">Default</button>
+            <button type="button" (click)="toastSuccess()">Success</button>
+            <button type="button" (click)="toastError()">Error</button>
+            <button type="button" (click)="toastWarning()">Warning</button>
+            <button type="button" (click)="toastInfo()">Info</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Descriptions</div>
+          <div class="buttons">
+            <button type="button" (click)="toastWarningWithDescription()">Warning + Description</button>
+            <button type="button" (click)="toastErrorWithDescription()">Error + Description</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Actions</div>
+          <div class="buttons">
+            <button type="button" (click)="toastErrorWithAction()">Error + Action</button>
+            <button type="button" (click)="toastActionSuccess()">Action + Success Pill</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Spring Control</div>
+          <div class="buttons">
+            <button type="button" (click)="toastNoSpring()">No Spring (Smooth)</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-label">Promise Morph</div>
+          <div class="buttons">
+            <button type="button" (click)="promiseSuccessPill()">Promise + Success</button>
+            <button type="button" (click)="promiseErrorExpanded()">Promise + Error Expanded</button>
+          </div>
+        </div>
+      </aside>
+
+      <section class="builder" id="builder">
+        <div class="builder-header">
+          <h2>Builder</h2>
+          <p>Tune the toast and preview it in real time.</p>
+        </div>
+
+        <div class="builder-card">
+          <div class="builder-row">
+            <div class="builder-label">Position</div>
+            <div class="type-pills">
+              @for (position of positions; track position) {
+                <button
+                  type="button"
+                  class="type-pill"
+                  [attr.data-type]="position"
+                  [attr.data-active]="builderPosition() === position"
+                  (click)="builderPosition.set(position)"
+                >
+                  {{ position }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="builder-row">
+            <div class="builder-label">Type</div>
+            <div class="type-pills">
+              @for (type of toastTypes; track type) {
+                <button
+                  type="button"
+                  class="type-pill"
+                  [attr.data-type]="type"
+                  [attr.data-active]="builderType() === type"
+                  (click)="builderType.set(type)"
+                >
+                  {{ type }}
+                </button>
+              }
+            </div>
+          </div>
+
+          <div class="builder-row">
+            <div class="builder-label">Title</div>
+            <input
+              class="builder-input"
+              aria-label="Title"
+              [value]="builderTitle()"
+              (input)="builderTitle.set($any($event.target).value)"
+              placeholder="Toast title"
+            />
+          </div>
+
+          <div class="builder-row">
+            <div class="toggle-row">
+              <span class="toggle-row-label">Description</span>
+              <button
+                class="toggle"
+                type="button"
+                aria-label="Toggle description"
+                [attr.aria-pressed]="builderHasDescription()"
+                [attr.data-on]="builderHasDescription()"
+                (click)="builderHasDescription.set(!builderHasDescription())"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+
+            @if (builderHasDescription()) {
+              <textarea
+                class="builder-input builder-textarea"
+                aria-label="Description"
+                [value]="builderDescription()"
+                (input)="builderDescription.set($any($event.target).value)"
+              ></textarea>
+            }
+          </div>
+
+          <div class="builder-row">
+            <div class="toggle-row">
+              <span class="toggle-row-label">Action Button</span>
+              <button
+                class="toggle"
+                type="button"
+                aria-label="Toggle action button"
+                [attr.aria-pressed]="builderHasAction()"
+                [attr.data-on]="builderHasAction()"
+                (click)="builderHasAction.set(!builderHasAction())"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+
+            @if (builderHasAction()) {
+              <input
+                class="builder-input"
+                aria-label="Action label"
+                [value]="builderActionLabel()"
+                (input)="builderActionLabel.set($any($event.target).value)"
+                placeholder="Action label"
+              />
+            }
+          </div>
+
+          <div class="builder-row">
+            <div class="builder-label">Style</div>
+
+            <div class="style-controls">
+              <div class="color-row">
+                <span class="color-row-label">Fill Color</span>
+                <div class="color-picker-group">
+                  <input type="color" class="color-input" aria-label="Fill color picker" [value]="builderFillColor()" (input)="builderFillColor.set($any($event.target).value)" />
+                  <input class="builder-input color-hex" aria-label="Fill color hex input" [value]="builderFillColor()" (input)="builderFillColor.set($any($event.target).value)" />
+                </div>
+              </div>
+
+              <div class="type-color-grid">
+                @for (toneType of toneTypes; track toneType) {
+                  <div class="color-row">
+                    <span class="color-row-label">{{ toneType }} tone</span>
+                    <div class="color-picker-group">
+                      <input
+                        type="color"
+                        class="color-input"
+                        [value]="builderToneColor(toneType)"
+                        [attr.aria-label]="'Select ' + toneType + ' color'"
+                        (input)="setBuilderTypeColor(toneType, $any($event.target).value)"
+                      />
+                      <input
+                        class="builder-input color-hex"
+                        [value]="builderToneColor(toneType)"
+                        [attr.aria-label]="'Type ' + toneType + ' hex color'"
+                        (input)="setBuilderTypeColor(toneType, $any($event.target).value)"
+                      />
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="border-section">
+                <div class="toggle-row">
+                  <span class="toggle-row-label">Border</span>
+                  <button
+                    class="toggle"
+                    type="button"
+                    aria-label="Toggle border"
+                    [attr.aria-pressed]="builderHasBorder()"
+                    [attr.data-on]="builderHasBorder()"
+                    (click)="builderHasBorder.set(!builderHasBorder())"
+                  >
+                    <span class="toggle-knob"></span>
+                  </button>
+                </div>
+
+                @if (builderHasBorder()) {
+                  <div class="border-controls">
+                    <div class="color-row">
+                      <span class="color-row-label">Border Color</span>
+                      <div class="color-picker-group">
+                        <input type="color" class="color-input" aria-label="Border color picker" [value]="builderBorderColor()" (input)="builderBorderColor.set($any($event.target).value)" />
+                        <input class="builder-input color-hex" aria-label="Border color hex input" [value]="builderBorderColor()" (input)="builderBorderColor.set($any($event.target).value)" />
+                      </div>
+                    </div>
+
+                    <div class="slider-item">
+                      <div class="slider-item-header">
+                        <span class="slider-item-label">Border Width</span>
+                        <span class="slider-item-value">{{ builderBorderWidth() }}px</span>
+                      </div>
+                      <input
+                        type="range"
+                        class="slider"
+                        aria-label="Border width"
+                        min="0.5"
+                        max="4"
+                        step="0.5"
+                        [value]="builderBorderWidth()"
+                        (input)="setBuilderBorderWidth($any($event.target).value)"
+                      />
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <div class="radius-controls">
+                <div class="slider-item">
+                  <div class="slider-item-header">
+                    <span class="slider-item-label">Pill Radius</span>
+                    <span class="slider-item-value">{{ builderPillRadius() }}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    aria-label="Pill radius"
+                    min="0"
+                    max="17"
+                    step="1"
+                    [value]="builderPillRadius()"
+                    (input)="setBuilderPillRadius($any($event.target).value)"
+                  />
+                </div>
+
+                <div class="slider-item">
+                  <div class="slider-item-header">
+                    <span class="slider-item-label">Body Radius</span>
+                    <span class="slider-item-value">{{ builderBodyRadius() }}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    aria-label="Body radius"
+                    min="0"
+                    max="32"
+                    step="1"
+                    [value]="builderBodyRadius()"
+                    (input)="setBuilderBodyRadius($any($event.target).value)"
+                  />
+                </div>
+
+                <div class="slider-item">
+                  <div class="slider-item-header">
+                    <span class="slider-item-label">Action Radius</span>
+                    <span class="slider-item-value">{{ builderActionRadius() }}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    class="slider"
+                    aria-label="Action radius"
+                    min="0"
+                    max="999"
+                    step="1"
+                    [value]="builderActionRadius()"
+                    (input)="setBuilderActionRadius($any($event.target).value)"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="builder-row">
+            <div class="builder-label">Timing</div>
+            <div class="slider-item">
+              <div class="slider-item-header">
+                <span class="slider-item-label">Display Duration</span>
+                <span class="slider-item-value">{{ (builderDisplayDuration() / 1000).toFixed(1) }}s</span>
+              </div>
+              <input
+                type="range"
+                class="slider"
+                aria-label="Display duration"
+                min="1000"
+                max="20000"
+                step="500"
+                [value]="builderDisplayDuration()"
+                (input)="setBuilderDisplayDuration($any($event.target).value)"
+              />
+            </div>
+          </div>
+
+          <div class="builder-row">
+            <div class="builder-label">Spring</div>
+            <div class="toggle-row spring-row">
+              <span class="toggle-row-label">{{ builderSpring() ? 'On' : 'Off' }}</span>
+              <button
+                class="toggle"
+                type="button"
+                aria-label="Toggle spring animation"
+                [attr.aria-pressed]="builderSpring()"
+                [attr.data-on]="builderSpring()"
+                (click)="builderSpring.set(!builderSpring())"
+              >
+                <span class="toggle-knob"></span>
+              </button>
+            </div>
+
+            @if (builderSpring()) {
+              <div class="slider-item">
+                <div class="slider-item-header">
+                  <span class="slider-item-label">Bounce</span>
+                  <span class="slider-item-value">{{ builderBounce().toFixed(2) }}</span>
+                </div>
+                <input
+                  type="range"
+                  class="slider"
+                  aria-label="Bounce"
+                  min="0.05"
+                  max="0.8"
+                  step="0.05"
+                  [value]="builderBounce()"
+                  (input)="setBuilderBounce($any($event.target).value)"
+                />
+              </div>
+            }
+          </div>
+
+          <div class="builder-row">
+            <button type="button" class="fire-btn" (click)="fireBuilderToast()">Fire Toast</button>
+          </div>
+
+          <div class="builder-code">
+            <button type="button" class="code-copy-btn" (click)="copyGeneratedCode()">
+              {{ codeCopied() ? 'Copied!' : 'Copy' }}
+            </button>
+            <pre><code>{{ generatedCode() }}</code></pre>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <section class="docs" id="docs">
+      <div class="docs-header">
+        <h2>Documentation</h2>
+        <p>Core API and usage pattern aligned with the original goey-toast experience.</p>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-label">
+          <span class="doc-number">01</span>
+          <h3>Quick Start</h3>
+        </div>
+
+        <div class="doc-section-content">
+          <pre><code>import {{ '{' }} GoeyToasterComponent, GoeyToastService {{ '}' }} from 'goey-toast-angular';
+
+&lt;goey-toaster position="bottom-right"&gt;&lt;/goey-toaster&gt;
+
+toast.success('Saved!', {{ '{' }}
+  description: 'Your changes are synced.',
+{{ '}' }});</code></pre>
+        </div>
+      </div>
+
+      <div class="doc-section">
+        <div class="doc-section-label">
+          <span class="doc-number">02</span>
+          <h3>Options</h3>
+        </div>
+
+        <div class="doc-section-content table-scroll">
+          <table class="prop-table">
+            <thead>
+              <tr>
+                <th>Option</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>description</td><td>string</td><td>Expands toast from pill to blob.</td></tr>
+              <tr><td>action</td><td>GoeyToastAction</td><td>Action button with optional success label.</td></tr>
+              <tr><td>timing.displayDuration</td><td>number</td><td>Expanded display duration in milliseconds.</td></tr>
+              <tr><td>fillColor</td><td>string</td><td>Custom blob background color.</td></tr>
+              <tr><td>borderColor</td><td>string</td><td>Custom border color.</td></tr>
+              <tr><td>borderWidth</td><td>number</td><td>Border width in px.</td></tr>
+              <tr><td>typeColors</td><td>Partial&lt;Record&lt;GoeyToastType, string&gt;&gt;</td><td>Override tone colors per toast type.</td></tr>
+              <tr><td>radius.pill</td><td>number</td><td>Collapsed pill corner radius in px.</td></tr>
+              <tr><td>radius.body</td><td>number</td><td>Expanded body corner radius in px.</td></tr>
+              <tr><td>radius.action</td><td>number | string</td><td>Action button border radius.</td></tr>
+              <tr><td>spring</td><td>boolean</td><td>Enable spring-style morphing and squish.</td></tr>
+              <tr><td>bounce</td><td>number</td><td>Spring intensity (0.05 to 0.8).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>

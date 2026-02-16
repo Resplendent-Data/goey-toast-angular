@@ -38,4 +38,69 @@ describe('GoeyToastService', () => {
     const toasts = await firstValueFrom(service.toasts$.pipe(take(1)));
     expect(toasts.some((t) => t.type === 'success' && t.title === 'Done!')).toBe(true);
   });
+
+  it('does not auto-dismiss expanded toasts in service timers', async () => {
+    vi.useFakeTimers();
+
+    const service = new GoeyToastService();
+    const id = service.info('Session warning', {
+      description: 'You will be logged out soon.',
+      duration: 1000,
+    });
+
+    vi.advanceTimersByTime(1500);
+
+    const toasts = await firstValueFrom(service.toasts$.pipe(take(1)));
+    expect(toasts.find((toast) => toast.id === id)).toBeDefined();
+
+    vi.useRealTimers();
+  });
+
+  it('applies per-type colors and radius options', async () => {
+    const service = new GoeyToastService();
+
+    service.error('Custom tone', {
+      typeColors: {
+        error: '#ff2d2d',
+      },
+      radius: {
+        pill: 12,
+        body: 10,
+        action: 14,
+      },
+    });
+
+    const toasts = await firstValueFrom(service.toasts$.pipe(take(1)));
+    expect(toasts).toHaveLength(1);
+    expect(toasts[0].typeColors?.error).toBe('#ff2d2d');
+    expect(toasts[0].radius?.pill).toBe(12);
+    expect(toasts[0].radius?.body).toBe(10);
+    expect(toasts[0].radius?.action).toBe(14);
+  });
+
+  it('promise transitions result in a single toast', async () => {
+    const service = new GoeyToastService();
+
+    await service.promise(Promise.resolve('production'), {
+      loading: 'Deploying...',
+      success: (env) => `Deployed to ${env}`,
+      error: 'Deploy failed',
+      description: {
+        success: (env) => `Environment: ${env}`,
+      },
+      action: {
+        success: {
+          label: 'Open',
+          onClick: () => undefined,
+        },
+      },
+    });
+
+    const toasts = await firstValueFrom(service.toasts$.pipe(take(1)));
+    expect(toasts).toHaveLength(1);
+    expect(toasts[0].type).toBe('success');
+    expect(toasts[0].title).toBe('Deployed to production');
+    expect(toasts[0].description).toBe('Environment: production');
+    expect(toasts[0].action?.label).toBe('Open');
+  });
 });
