@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.1.0...v1.1.1) (2026-02-16)
+
+
+### Bug Fixes
+
+* ensure publish workflow authenticates for npm release ([570f0d9](https://github.com/Resplendent-Data/goey-toast-angular/commit/570f0d9222794c4c388d7fbf8dc0c64e647c6fc7))
+
 ## [1.1.0](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.0.0...v1.1.0) (2026-02-16)
 
 
