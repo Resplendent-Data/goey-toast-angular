@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.0.0...v1.1.0) (2026-02-16)
+
+
+### Features
+
+* improved styling ([f31db99](https://github.com/Resplendent-Data/goey-toast-angular/commit/f31db99547d82dee30844baeb5c650d23ef32ddc))
+
 ## 1.0.0 (2026-02-16)
 
 
