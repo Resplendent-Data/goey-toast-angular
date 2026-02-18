@@ -23,12 +23,12 @@ const POSITIONS: GoeyToastPosition[] = [
 const TOAST_TYPES: DemoToastType[] = ['default', 'success', 'error', 'warning', 'info'];
 const TONE_TYPES: GoeyToastType[] = ['default', 'success', 'error', 'warning', 'info', 'loading'];
 const DEFAULT_TYPE_COLORS: Record<GoeyToastType, string> = {
-  default: '#555555',
-  success: '#4caf50',
-  error: '#e53935',
-  warning: '#c49000',
-  info: '#1e88e5',
-  loading: '#555555',
+  default: '#3366FF',
+  success: '#00D68F',
+  error: '#FF3D71',
+  warning: '#FFAA00',
+  info: '#0095FF',
+  loading: '#3366FF',
 };
 const DEFAULT_RADIUS: Required<GoeyToastRadius> = {
   pill: 17,
@@ -188,6 +188,7 @@ export class AppComponent {
       duration: 4000,
       spring: true,
       bounce: 0.4,
+      typeColors: { ...DEFAULT_TYPE_COLORS },
     });
   }
 
