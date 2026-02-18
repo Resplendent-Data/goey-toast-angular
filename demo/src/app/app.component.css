@@ -19,7 +19,6 @@
   --warning-soft: #FFF6E6;
   --info: #0095FF;
   --info-soft: #E6F4FF;
-  --brand-gold: #FAC951;
   --brand-purple: #4C3851;
   --radius: 12px;
   --radius-inner: 8px;
@@ -373,45 +372,30 @@ button:hover {
   background: var(--primary-soft);
 }
 
-.type-pill[data-active='true'][data-type='success'] {
+.type-pill[data-active='true'] {
   border-color: transparent;
+  background: var(--card-active);
+  color: var(--text);
+}
+
+.type-pill[data-active='true'][data-type='success'] {
   background: var(--success-soft);
   color: #00A86B;
 }
 
 .type-pill[data-active='true'][data-type='error'] {
-  border-color: transparent;
   background: var(--danger-soft);
   color: #D9325A;
 }
 
 .type-pill[data-active='true'][data-type='warning'] {
-  border-color: transparent;
   background: var(--warning-soft);
   color: #CC8800;
 }
 
 .type-pill[data-active='true'][data-type='info'] {
-  border-color: transparent;
   background: var(--info-soft);
   color: #0077CC;
-}
-
-.type-pill[data-active='true'][data-type='default'] {
-  border-color: transparent;
-  background: var(--card-active);
-  color: var(--text);
-}
-
-.type-pill[data-active='true'][data-type='top-left'],
-.type-pill[data-active='true'][data-type='top-center'],
-.type-pill[data-active='true'][data-type='top-right'],
-.type-pill[data-active='true'][data-type='bottom-left'],
-.type-pill[data-active='true'][data-type='bottom-center'],
-.type-pill[data-active='true'][data-type='bottom-right'] {
-  border-color: transparent;
-  background: var(--card-active);
-  color: var(--text);
 }
 
 .builder-input {
