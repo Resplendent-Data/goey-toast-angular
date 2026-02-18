@@ -17,7 +17,7 @@ html {
 body {
   background: #F7F8FA;
   color: #23221F;
-  font-family: 'muller', sans-serif;
+  font-family: muller, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

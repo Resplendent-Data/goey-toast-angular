@@ -60,7 +60,7 @@
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-family: 'muller-bold', sans-serif;
+  font-family: muller-bold, sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--text);
@@ -93,7 +93,7 @@
   padding: 8px 14px;
   font-size: 0.85rem;
   font-weight: 500;
-  font-family: 'muller', sans-serif;
+  font-family: muller, sans-serif;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -138,7 +138,7 @@
   background: var(--surface);
   box-shadow: var(--shadow-sm);
   padding: 8px 16px 8px 12px;
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-size: 0.76rem;
   color: var(--text-secondary);
   margin-bottom: 1.5rem;
@@ -163,7 +163,7 @@
   display: flex;
   align-items: center;
   width: fit-content;
-  font-family: 'muller-bold', sans-serif;
+  font-family: muller-bold, sans-serif;
   font-size: clamp(2.5rem, 8vw, 4rem);
   line-height: 1;
   font-weight: 800;
@@ -211,7 +211,7 @@
 
 .install-wrapper code {
   padding: 12px 18px;
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-size: 0.86rem;
   color: var(--text-secondary);
 }
@@ -229,7 +229,7 @@
   padding: 12px 14px;
   font-size: 0.8rem;
   font-weight: 600;
-  font-family: 'muller', sans-serif;
+  font-family: muller, sans-serif;
   cursor: pointer;
   transition: all 0.2s ease;
 }
@@ -262,7 +262,7 @@
 
 .examples-header h2 {
   margin: 0;
-  font-family: 'muller-bold', sans-serif;
+  font-family: muller-bold, sans-serif;
   font-size: 1.55rem;
   letter-spacing: -0.01em;
 }
@@ -299,7 +299,7 @@ button {
   padding: 10px 18px;
   font-size: 0.82rem;
   font-weight: 500;
-  font-family: 'muller', sans-serif;
+  font-family: muller, sans-serif;
   cursor: pointer;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -315,7 +315,7 @@ button:hover {
 
 .builder-header h2 {
   margin: 0 0 0.35rem;
-  font-family: 'muller-bold', sans-serif;
+  font-family: muller-bold, sans-serif;
   font-size: 1.55rem;
   letter-spacing: -0.01em;
 }
@@ -422,7 +422,7 @@ button:hover {
   color: var(--text);
   padding: 10px 14px;
   font-size: 0.86rem;
-  font-family: 'muller', sans-serif;
+  font-family: muller, sans-serif;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -530,7 +530,7 @@ button:hover {
 
 .color-hex {
   width: 100px;
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-size: 0.8rem;
   text-align: center;
 }
@@ -570,7 +570,7 @@ button:hover {
   padding: 3px 8px;
   color: var(--text-muted);
   font-size: 0.74rem;
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
 }
 
 .slider {
@@ -641,7 +641,7 @@ button:hover {
 
 .builder-code code {
   color: var(--text-secondary);
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-size: 0.8rem;
   line-height: 1.8;
 }
@@ -678,7 +678,7 @@ button:hover {
 
 .docs-header h2 {
   margin: 0 0 0.45rem;
-  font-family: 'muller-bold', sans-serif;
+  font-family: muller-bold, sans-serif;
   font-size: 2.1rem;
   letter-spacing: -0.01em;
 }
@@ -705,13 +705,13 @@ button:hover {
 .doc-number {
   color: var(--primary);
   font-size: 0.72rem;
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-weight: 600;
 }
 
 .doc-section-label h3 {
   margin: 0;
-  font-family: 'muller-bold', sans-serif;
+  font-family: muller-bold, sans-serif;
   font-size: 1rem;
 }
 
@@ -727,7 +727,7 @@ button:hover {
 
 .doc-section-content code {
   color: var(--text-secondary);
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-size: 0.78rem;
   line-height: 1.75;
 }
@@ -771,7 +771,7 @@ button:hover {
 .prop-table td:first-child {
   white-space: nowrap;
   color: var(--text);
-  font-family: 'muller', monospace;
+  font-family: muller, monospace;
   font-size: 0.78rem;
 }
 
