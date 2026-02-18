@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.2.0](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.1.2...v1.2.0) (2026-02-18)
+
+
+### Features
+
+* apply Resplendent light theme to demo ([#9](https://github.com/Resplendent-Data/goey-toast-angular/issues/9)) ([3659d11](https://github.com/Resplendent-Data/goey-toast-angular/commit/3659d112d6864aff9fece0a56776f52cfe314d4c))
+
+
+### Bug Fixes
+
+* **demo:** keep themed component CSS under build budget ([#11](https://github.com/Resplendent-Data/goey-toast-angular/issues/11)) ([eabfc39](https://github.com/Resplendent-Data/goey-toast-angular/commit/eabfc39221d4378740e03f05e5abfae79dee6475))
+
 ## [1.1.2](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.1.1...v1.1.2) (2026-02-16)
 
 
