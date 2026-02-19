@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.0...v1.2.1) (2026-02-19)
+
+
+### Bug Fixes
+
+* **demo:** fix pages logo asset paths and demo build budget ([#12](https://github.com/Resplendent-Data/goey-toast-angular/issues/12)) ([fcaadd5](https://github.com/Resplendent-Data/goey-toast-angular/commit/fcaadd5191a65826498a266bab4ee763c6f63ff2))
+
 ## [1.2.0](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.1.2...v1.2.0) (2026-02-18)
 
 
