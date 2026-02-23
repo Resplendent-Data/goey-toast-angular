@@ -10,7 +10,6 @@
   position: absolute;
   pointer-events: auto;
   transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
 }
 
 .goey-stackItem::before {
@@ -27,12 +26,14 @@
 .top-center .goey-stackItemEntering .goey-stackItemInner,
 .top-right .goey-stackItemEntering .goey-stackItemInner {
   animation: goey-stack-enter-top 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
 }
 
 .bottom-left .goey-stackItemEntering .goey-stackItemInner,
 .bottom-center .goey-stackItemEntering .goey-stackItemInner,
 .bottom-right .goey-stackItemEntering .goey-stackItemInner {
   animation: goey-stack-enter-bottom 420ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform, opacity;
 }
 
 .top-left .goey-stackItem,
