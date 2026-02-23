@@ -646,7 +646,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const wrapperEl = this.wrapperRef.nativeElement;
     const contentEl = this.contentRef.nativeElement;
 
-    if (t >= 0.999) {
+    if (t >= 0.999 && this.rafId === null) {
       wrapperEl.style.width = '';
       contentEl.style.width = '';
       contentEl.style.maxHeight = '';
