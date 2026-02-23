@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.4](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.3...v1.2.4) (2026-02-23)
+
+
+### Bug Fixes
+
+* size expanded toast to content width and smooth narrow blob shape ([#18](https://github.com/Resplendent-Data/goey-toast-angular/issues/18)) ([d05a9dc](https://github.com/Resplendent-Data/goey-toast-angular/commit/d05a9dcd7cc3ce16d1016bd0560c3fcf068e1195))
+
 ## [1.2.3](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.2...v1.2.3) (2026-02-23)
 
 
