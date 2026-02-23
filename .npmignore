@@ -1,0 +1,29 @@
+# Safety net: if someone accidentally runs `npm publish` from the repo root
+# instead of publishing from dist/, exclude everything that shouldn't ship.
+# The correct publish target is `npm publish dist/`.
+
+# Dev and CI tooling
+.github/
+.opencode/
+.git/
+.gitignore
+.npmignore
+AGENTS.md
+CHANGELOG.md
+vitest.config.ts
+tsconfig.json
+tsconfig.lib.json
+ng-package.json
+coverage/
+out-tsc/
+
+# Demo app and examples
+demo/
+examples/
+icons/
+
+# Source and tests (consumers get compiled output from dist/)
+src/
+
+# Lock files
+package-lock.json

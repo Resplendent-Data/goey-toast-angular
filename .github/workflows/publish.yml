@@ -34,5 +34,5 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Publish (Trusted Publishing / OIDC)
-        run: npm publish --provenance --access public
+      - name: Publish from dist (Trusted Publishing / OIDC)
+        run: npm publish dist/ --provenance --access public
