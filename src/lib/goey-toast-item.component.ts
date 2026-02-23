@@ -35,7 +35,7 @@ const COLLAPSE_DURATION_MS = 900;
 const EXPAND_SPRING_DURATION_MS = 900;
 const EXPAND_EASE_DURATION_MS = 600;
 const REDUCED_MOTION_COLLAPSE_MS = 10;
-const COLLAPSE_HOLD_BEFORE_DISMISS_MS = 800;
+const COLLAPSE_HOLD_BEFORE_DISMISS_MS = 450;
 const ACTION_SUCCESS_DISMISS_MS = 1200;
 const DEFAULT_MORPH_RADII: GoeyMorphRadii = {
   pill: TOAST_PILL_HEIGHT / 2,
@@ -65,7 +65,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private readonly cdr = inject(ChangeDetectorRef);
 
   readonly renderBody = signal(false);
-  readonly bodyVisible = signal(false);
+  readonly descriptionVisible = signal(false);
+  readonly actionVisible = signal(false);
   readonly actionSuccessLabel = signal<string | null>(null);
 
   private prefersReducedMotion = false;
@@ -97,6 +98,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private dismissAfterCollapseTimer: ReturnType<typeof setTimeout> | null = null;
   private actionSuccessTimer: ReturnType<typeof setTimeout> | null = null;
   private bodyRevealTimer: ReturnType<typeof setTimeout> | null = null;
+  private actionRevealTimer: ReturnType<typeof setTimeout> | null = null;
 
   private remainingDismissMs: number | null = null;
   private dismissTimerArmedMs = 0;
@@ -167,6 +169,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
       'goey-wrapper',
       this.isRight() ? 'goey-right' : null,
       this.isCenter() ? 'goey-center' : null,
+      this.isTop() ? 'goey-top' : 'goey-bottom',
       this.toast.state === 'closing' ? 'goey-finalClosing' : null,
       this.toast.classNames?.wrapper
     );
@@ -197,7 +200,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   descriptionClass(): string {
     return joinClasses(
       'goey-description',
-      this.bodyVisible() ? 'goey-bodyVisible' : 'goey-bodyHidden',
+      this.descriptionVisible() ? 'goey-bodyVisible' : 'goey-bodyHidden',
       this.toast.classNames?.description
     );
   }
@@ -205,7 +208,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   actionWrapperClass(): string {
     return joinClasses(
       'goey-actionWrapper',
-      this.bodyVisible() ? 'goey-bodyVisible' : 'goey-bodyHidden',
+      this.actionVisible() ? 'goey-bodyVisible' : 'goey-bodyHidden',
       this.toast.classNames?.actionWrapper
     );
   }
@@ -314,7 +317,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     if (this.toast.state === 'closing') {
       this.stopShakeAnimation(true);
       this.stopExpandedLifecycleTimers();
-      this.bodyVisible.set(false);
+      this.descriptionVisible.set(false);
+      this.actionVisible.set(false);
       this.renderBody.set(false);
       this.preDismissing = false;
       this.animateMorphTo(0);
@@ -336,7 +340,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
         this.collapseToPill();
       } else {
         this.renderBody.set(false);
-        this.bodyVisible.set(false);
+        this.descriptionVisible.set(false);
+        this.actionVisible.set(false);
         this.morphProgress = 0;
         this.expandedDims = { ...this.collapsedDims };
         this.applyMorphFrame();
@@ -381,7 +386,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   private expandIntoBlob(): void {
     this.stopExpandedLifecycleTimers();
     this.preDismissing = false;
-    this.bodyVisible.set(false);
+    this.descriptionVisible.set(false);
+    this.actionVisible.set(false);
     this.renderBody.set(false);
     this.morphProgress = 0;
     this.applyMorphFrame();
@@ -393,9 +399,14 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
       this.measureExpandedDims();
       this.applyMorphFrame();
       this.animateMorphTo(1);
+      const revealDelay = this.prefersReducedMotion ? 0 : 90;
       this.bodyRevealTimer = setTimeout(() => {
-        this.bodyVisible.set(true);
-      }, this.prefersReducedMotion ? 0 : 90);
+        this.descriptionVisible.set(true);
+        const stagger = this.currentDescription() && this.currentAction() ? 70 : 0;
+        this.actionRevealTimer = setTimeout(() => {
+          this.actionVisible.set(true);
+        }, this.prefersReducedMotion ? 0 : stagger);
+      }, revealDelay);
       this.startPreDismissTimer();
     }, expandDelay);
   }
@@ -447,7 +458,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
 
     this.preDismissing = true;
-    this.bodyVisible.set(false);
+    this.descriptionVisible.set(false);
+    this.actionVisible.set(false);
 
     this.collapseToPill(() => {
       if (this.isHoveringActive()) {
@@ -471,7 +483,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     this.cdr.detectChanges();
     this.measureExpandedDims();
     this.applyMorphFrame();
-    this.bodyVisible.set(true);
+    this.descriptionVisible.set(true);
+    this.actionVisible.set(true);
     this.animateMorphTo(1);
 
     if (!this.hovering) {
@@ -480,7 +493,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   private collapseToPill(onComplete?: () => void): void {
-    this.bodyVisible.set(false);
+    this.descriptionVisible.set(false);
+    this.actionVisible.set(false);
 
     this.animateMorphTo(0, () => {
       this.renderBody.set(false);
@@ -627,6 +641,8 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
       : morphPath(collapsedPillWidth, expandedBodyWidth, expandedHeight, t, radii);
     this.pathRef.nativeElement.setAttribute('d', path);
 
+    svgEl.classList.toggle('goey-blobExpanded', t > 0.3);
+
     const wrapperEl = this.wrapperRef.nativeElement;
     const contentEl = this.contentRef.nativeElement;
 
@@ -730,6 +746,11 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
       this.bodyRevealTimer = null;
     }
 
+    if (this.actionRevealTimer) {
+      clearTimeout(this.actionRevealTimer);
+      this.actionRevealTimer = null;
+    }
+
     if (this.preDismissTimer) {
       clearTimeout(this.preDismissTimer);
       this.preDismissTimer = null;
@@ -781,6 +802,10 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     }
 
     return this.toast.state === 'open';
+  }
+
+  private isTop(): boolean {
+    return this.position.startsWith('top');
   }
 
   private isRight(): boolean {

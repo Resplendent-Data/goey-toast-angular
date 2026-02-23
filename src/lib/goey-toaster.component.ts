@@ -185,14 +185,24 @@ export class GoeyToasterComponent implements OnInit, OnChanges, OnDestroy, After
     const overlap = clamp(this.overlap, 1, TOAST_PILL_HEIGHT - 2);
     const collapsedStep = TOAST_PILL_HEIGHT - overlap;
     const expandedGap = Math.max(6, this.gap);
-    let distance = index * collapsedStep;
+    const toasts = this.visibleStackToasts();
+    let distance = 0;
 
     if (this.stackHoverActive()) {
       const heights = this.stackHeights();
-      distance = 0;
       for (let i = 0; i < index; i += 1) {
+        if (toasts[i]?.state === 'closing') {
+          continue;
+        }
         const height = heights[i] ?? TOAST_PILL_HEIGHT;
         distance += height + expandedGap;
+      }
+    } else {
+      for (let i = 0; i < index; i += 1) {
+        if (toasts[i]?.state === 'closing') {
+          continue;
+        }
+        distance += collapsedStep;
       }
     }
 
