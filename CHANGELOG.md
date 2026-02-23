@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.3](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.2...v1.2.3) (2026-02-23)
+
+
+### Bug Fixes
+
+* publish built output from dist/ instead of repo root ([#16](https://github.com/Resplendent-Data/goey-toast-angular/issues/16)) ([7fed069](https://github.com/Resplendent-Data/goey-toast-angular/commit/7fed0691b5e6bc388479e263699df41c21ef2f8a))
+
 ## [1.2.2](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.1...v1.2.2) (2026-02-23)
 
 
