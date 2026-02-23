@@ -950,8 +950,10 @@ export function morphPath(
     0,
     Math.min(configuredBodyRadius, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45, bodyWidthInterpolated / 2)
   );
+  const lateralExpansion = bodyWidthInterpolated - safePillWidth;
+  const topRightRadius = Math.max(0, Math.min(cornerRadius, lateralExpansion));
   const bodyTop = TOAST_PILL_HEIGHT - curve;
-  const qEndX = Math.min(safePillWidth + curve, bodyWidthInterpolated - cornerRadius);
+  const qEndX = Math.min(safePillWidth + curve, bodyWidthInterpolated - topRightRadius);
 
   const pillTopCommands = radius > 0
     ? [
@@ -981,8 +983,8 @@ export function morphPath(
     ...pillTopCommands,
     `L ${safePillWidth},${bodyTop}`,
     `Q ${safePillWidth},${bodyTop + curve} ${qEndX},${bodyTop + curve}`,
-    `H ${bodyWidthInterpolated - cornerRadius}`,
-    `A ${cornerRadius},${cornerRadius} 0 0 1 ${bodyWidthInterpolated},${bodyTop + curve + cornerRadius}`,
+    `H ${bodyWidthInterpolated - topRightRadius}`,
+    `A ${topRightRadius},${topRightRadius} 0 0 1 ${bodyWidthInterpolated},${bodyTop + curve + topRightRadius}`,
     `L ${bodyWidthInterpolated},${bodyHeight - cornerRadius}`,
     `A ${cornerRadius},${cornerRadius} 0 0 1 ${bodyWidthInterpolated - cornerRadius},${bodyHeight}`,
     `H ${cornerRadius}`,
@@ -1033,13 +1035,15 @@ export function morphPathCenter(
     0,
     Math.min(configuredBodyRadius, (bodyHeight - TOAST_PILL_HEIGHT) * 0.45, bodyWidthInterpolated / 2)
   );
+  const lateralExpansion = (bodyWidthInterpolated - safePillWidth) / 2;
+  const topCornerRadius = Math.max(0, Math.min(cornerRadius, lateralExpansion));
   const bodyTop = TOAST_PILL_HEIGHT - curve;
   const bodyCenter = bodyWidth / 2;
   const halfWidth = bodyWidthInterpolated / 2;
   const bodyLeft = bodyCenter - halfWidth;
   const bodyRight = bodyCenter + halfWidth;
-  const qLeftX = Math.max(bodyLeft + cornerRadius, pillOffset - curve);
-  const qRightX = Math.min(bodyRight - cornerRadius, pillOffset + safePillWidth + curve);
+  const qLeftX = Math.max(bodyLeft + topCornerRadius, pillOffset - curve);
+  const qRightX = Math.min(bodyRight - topCornerRadius, pillOffset + safePillWidth + curve);
 
   const pillTopCommands = radius > 0
     ? [
@@ -1072,14 +1076,14 @@ export function morphPathCenter(
     ...pillTopCommands,
     `L ${pillOffset + safePillWidth},${bodyTop}`,
     `Q ${pillOffset + safePillWidth},${bodyTop + curve} ${qRightX},${bodyTop + curve}`,
-    `H ${bodyRight - cornerRadius}`,
-    `A ${cornerRadius},${cornerRadius} 0 0 1 ${bodyRight},${bodyTop + curve + cornerRadius}`,
+    `H ${bodyRight - topCornerRadius}`,
+    `A ${topCornerRadius},${topCornerRadius} 0 0 1 ${bodyRight},${bodyTop + curve + topCornerRadius}`,
     `L ${bodyRight},${bodyHeight - cornerRadius}`,
     `A ${cornerRadius},${cornerRadius} 0 0 1 ${bodyRight - cornerRadius},${bodyHeight}`,
     `H ${bodyLeft + cornerRadius}`,
     `A ${cornerRadius},${cornerRadius} 0 0 1 ${bodyLeft},${bodyHeight - cornerRadius}`,
-    `L ${bodyLeft},${bodyTop + curve + cornerRadius}`,
-    `A ${cornerRadius},${cornerRadius} 0 0 1 ${bodyLeft + cornerRadius},${bodyTop + curve}`,
+    `L ${bodyLeft},${bodyTop + curve + topCornerRadius}`,
+    `A ${topCornerRadius},${topCornerRadius} 0 0 1 ${bodyLeft + topCornerRadius},${bodyTop + curve}`,
     `H ${qLeftX}`,
     `Q ${pillOffset},${bodyTop + curve} ${pillOffset},${bodyTop}`,
     'Z',
