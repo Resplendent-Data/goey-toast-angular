@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.2](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.1...v1.2.2) (2026-02-23)
+
+
+### Bug Fixes
+
+* polish toast notification animations ([#14](https://github.com/Resplendent-Data/goey-toast-angular/issues/14)) ([8c1d46f](https://github.com/Resplendent-Data/goey-toast-angular/commit/8c1d46f868947e267b56c9a40202dda8b0c0cf8c))
+
 ## [1.2.1](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.0...v1.2.1) (2026-02-19)
 
 
