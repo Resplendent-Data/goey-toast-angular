@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.5](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.4...v1.2.5) (2026-02-23)
+
+
+### Bug Fixes
+
+* equalize expanded content padding top and bottom ([#20](https://github.com/Resplendent-Data/goey-toast-angular/issues/20)) ([aefcc5a](https://github.com/Resplendent-Data/goey-toast-angular/commit/aefcc5a38c5ced85f949f35ad729748a031919ad))
+
 ## [1.2.4](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.3...v1.2.4) (2026-02-23)
 
 
