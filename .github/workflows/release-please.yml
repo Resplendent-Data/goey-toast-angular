@@ -18,35 +18,3 @@ jobs:
           release-type: node
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  publish:
-    name: Publish npm
-    needs: release-please
-    if: ${{ needs.release-please.outputs.release_created == 'true' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          registry-url: https://registry.npmjs.org
-          cache: npm
-
-      - name: Upgrade npm
-        run: |
-          npm install -g npm@latest
-          npm --version
-
-      - name: Install
-        run: npm ci
-
-      - name: Test
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Publish (Trusted Publishing / OIDC)
-        run: npm publish --provenance --access public
