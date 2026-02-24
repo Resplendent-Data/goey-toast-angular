@@ -311,6 +311,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   private syncFromToast(): void {
+    this.cdr.detectChanges();
     this.measureCollapsedDims();
     this.applyMorphFrame();
 
@@ -551,8 +552,9 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const computed = getComputedStyle(contentEl);
     const horizontalPadding = toNumber(computed.paddingLeft) + toNumber(computed.paddingRight);
     const pillWidth = this.headerRef.nativeElement.offsetWidth + horizontalPadding;
-    const bodyWidth = Math.max(contentEl.offsetWidth, pillWidth);
-    const totalHeight = Math.max(contentEl.offsetHeight, TOAST_PILL_HEIGHT);
+    const rect = contentEl.getBoundingClientRect();
+    const bodyWidth = Math.max(Math.ceil(rect.width), pillWidth);
+    const totalHeight = Math.max(Math.ceil(rect.height), TOAST_PILL_HEIGHT);
 
     this.expandedDims = {
       pillWidth,
@@ -646,7 +648,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const wrapperEl = this.wrapperRef.nativeElement;
     const contentEl = this.contentRef.nativeElement;
 
-    if (t >= 0.999) {
+    if (t >= 0.999 && this.rafId === null) {
       wrapperEl.style.width = '';
       contentEl.style.width = '';
       contentEl.style.maxHeight = '';
