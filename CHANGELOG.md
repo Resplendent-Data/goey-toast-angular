@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.7](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.6...v1.2.7) (2026-02-24)
+
+
+### Bug Fixes
+
+* correct pill shape bulge at small corner radii ([#24](https://github.com/Resplendent-Data/goey-toast-angular/issues/24)) ([13c8061](https://github.com/Resplendent-Data/goey-toast-angular/commit/13c8061a9490983638f19e1d4bc421ac8095e069))
+
 ## [1.2.6](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.5...v1.2.6) (2026-02-24)
 
 
