@@ -106,8 +106,6 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
   private rafId: number | null = null;
   private shakeRafId: number | null = null;
-  private _morphOpening = false;
-  private _maxLayoutT = 0;
 
   constructor() {
     afterNextRender(() => {
@@ -553,8 +551,9 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     const computed = getComputedStyle(contentEl);
     const horizontalPadding = toNumber(computed.paddingLeft) + toNumber(computed.paddingRight);
     const pillWidth = this.headerRef.nativeElement.offsetWidth + horizontalPadding;
-    const bodyWidth = Math.max(contentEl.offsetWidth, pillWidth);
-    const totalHeight = Math.max(contentEl.offsetHeight, TOAST_PILL_HEIGHT);
+    const rect = contentEl.getBoundingClientRect();
+    const bodyWidth = Math.max(Math.ceil(rect.width), pillWidth);
+    const totalHeight = Math.max(Math.ceil(rect.height), TOAST_PILL_HEIGHT);
 
     this.expandedDims = {
       pillWidth,
@@ -578,9 +577,6 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
     this.stopMorphAnimation();
 
     const from = this.morphProgress;
-    this._morphOpening = target > from;
-    this._maxLayoutT = from;
-
     if (this.prefersReducedMotion || Math.abs(target - from) < 0.001) {
       this.morphProgress = target;
       this.applyMorphFrame();
@@ -648,22 +644,10 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
     svgEl.classList.toggle('goey-blobExpanded', t > 0.3);
 
-    // During spring-eased opening animations, t oscillates (overshoots and
-    // bounces back).  The blob path above uses the raw t so the visual bounce
-    // is preserved, but content layout constraints must never shrink once they
-    // have expanded — otherwise text near a wrapping boundary will wrap and
-    // unwrap on every oscillation.  layoutT is a monotonic (ratcheting) version
-    // of t: it only increases while an opening animation is in progress.
-    let layoutT = t;
-    if (this._morphOpening && this.rafId !== null) {
-      layoutT = Math.max(t, this._maxLayoutT);
-      this._maxLayoutT = layoutT;
-    }
-
     const wrapperEl = this.wrapperRef.nativeElement;
     const contentEl = this.contentRef.nativeElement;
 
-    if (layoutT >= 0.999 && this.rafId === null) {
+    if (t >= 0.999 && this.rafId === null) {
       wrapperEl.style.width = '';
       contentEl.style.width = '';
       contentEl.style.maxHeight = '';
@@ -674,9 +658,9 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
 
     const pillWidth = Math.min(collapsedPillWidth, expandedBodyWidth);
 
-    if (layoutT > 0) {
-      const currentWidth = pillWidth + (expandedBodyWidth - pillWidth) * layoutT;
-      const currentHeight = TOAST_PILL_HEIGHT + (expandedHeight - TOAST_PILL_HEIGHT) * layoutT;
+    if (t > 0) {
+      const currentWidth = pillWidth + (expandedBodyWidth - pillWidth) * t;
+      const currentHeight = TOAST_PILL_HEIGHT + (expandedHeight - TOAST_PILL_HEIGHT) * t;
 
       wrapperEl.style.width = `${this.isCenter() ? centerWidth : currentWidth}px`;
       contentEl.style.width = `${this.isCenter() ? centerWidth : expandedBodyWidth}px`;
