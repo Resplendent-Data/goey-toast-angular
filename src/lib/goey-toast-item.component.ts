@@ -938,9 +938,10 @@ export function morphPath(
       `A ${radius},${radius} 0 0 1 ${radius},0`,
       `H ${safePillWidth - radius}`,
       `A ${radius},${radius} 0 0 1 ${safePillWidth},${radius}`,
+      `V ${TOAST_PILL_HEIGHT - radius}`,
       `A ${radius},${radius} 0 0 1 ${safePillWidth - radius},${TOAST_PILL_HEIGHT}`,
       `H ${radius}`,
-      `A ${radius},${radius} 0 0 1 0,${radius}`,
+      `A ${radius},${radius} 0 0 1 0,${TOAST_PILL_HEIGHT - radius}`,
       'Z',
     ].join(' ');
   }
@@ -1022,9 +1023,10 @@ export function morphPathCenter(
       `A ${radius},${radius} 0 0 1 ${pillOffset + radius},0`,
       `H ${pillOffset + safePillWidth - radius}`,
       `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth},${radius}`,
+      `V ${TOAST_PILL_HEIGHT - radius}`,
       `A ${radius},${radius} 0 0 1 ${pillOffset + safePillWidth - radius},${TOAST_PILL_HEIGHT}`,
       `H ${pillOffset + radius}`,
-      `A ${radius},${radius} 0 0 1 ${pillOffset},${radius}`,
+      `A ${radius},${radius} 0 0 1 ${pillOffset},${TOAST_PILL_HEIGHT - radius}`,
       'Z',
     ].join(' ');
   }
