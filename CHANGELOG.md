@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.6](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.5...v1.2.6) (2026-02-24)
+
+
+### Bug Fixes
+
+* prevent spring animation flicker during morph transitions ([#22](https://github.com/Resplendent-Data/goey-toast-angular/issues/22)) ([eb7f91a](https://github.com/Resplendent-Data/goey-toast-angular/commit/eb7f91a21393c66f13e4fadac719725113208582))
+
 ## [1.2.5](https://github.com/Resplendent-Data/goey-toast-angular/compare/v1.2.4...v1.2.5) (2026-02-23)
 
 
