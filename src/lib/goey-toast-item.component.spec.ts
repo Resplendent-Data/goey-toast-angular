@@ -66,6 +66,22 @@ describe('morphPath', () => {
     expect(moveY).toBeCloseTo(10, 3);
   });
 
+  it('draws straight edges between corner arcs at small pill radius', () => {
+    const path = morphPath(100, 300, 120, 0, { pill: 6, body: 8 });
+
+    // Should have V commands for the straight segments between corners
+    expect(path).toMatch(/\bV\s/);
+    // Should have 4 arcs (one per corner), not scaled-up arcs
+    const arcMatches = Array.from(path.matchAll(/\bA\s/g));
+    expect(arcMatches.length).toBe(4);
+    // All arcs should use radius 6
+    const arcRadii = Array.from(path.matchAll(/\bA\s*([\d.]+),([\d.]+)/g));
+    for (const match of arcRadii) {
+      expect(Number(match[1])).toBeCloseTo(6, 3);
+      expect(Number(match[2])).toBeCloseTo(6, 3);
+    }
+  });
+
   it('supports square pill corners at radius 0', () => {
     const path = morphPath(100, 300, 120, 0, { pill: 0, body: 0 });
 
@@ -90,5 +106,21 @@ describe('morphPathCenter', () => {
     expect(hasLineTo(path, 300, 104)).toBe(true);
     expect(hasHorizontalTo(path, 16)).toBe(true);
     expect(path).toMatch(/\bQ\b/);
+  });
+
+  it('draws straight edges between corner arcs at small pill radius', () => {
+    const path = morphPathCenter(100, 300, 120, 0, { pill: 6, body: 8 });
+
+    // Should have V commands for the straight segments between corners
+    expect(path).toMatch(/\bV\s/);
+    // Should have 4 arcs (one per corner)
+    const arcMatches = Array.from(path.matchAll(/\bA\s/g));
+    expect(arcMatches.length).toBe(4);
+    // All arcs should use radius 6
+    const arcRadii = Array.from(path.matchAll(/\bA\s*([\d.]+),([\d.]+)/g));
+    for (const match of arcRadii) {
+      expect(Number(match[1])).toBeCloseTo(6, 3);
+      expect(Number(match[2])).toBeCloseTo(6, 3);
+    }
   });
 });
