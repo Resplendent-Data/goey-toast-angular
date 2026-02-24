@@ -311,6 +311,7 @@ export class GoeyToastItemComponent implements AfterViewInit, OnChanges, OnDestr
   }
 
   private syncFromToast(): void {
+    this.cdr.detectChanges();
     this.measureCollapsedDims();
     this.applyMorphFrame();
 
